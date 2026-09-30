@@ -1,0 +1,40 @@
+---
+import { categories } from '../data/products';
+---
+<footer class="bg-gray-900 text-gray-300 mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2 font-bold text-xl text-white mb-4">
+          <span class="text-2xl">🛒</span> DropShip<span class="text-accent-500">Chile</span>
+        </div>
+        <p class="text-sm text-gray-400 leading-relaxed">Los mejores productos de AliExpress con envío a todo Chile. Paga seguro con WebPay.</p>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3">Categorías</h4>
+        <ul class="space-y-2 text-sm">
+          {categories.slice(0, 5).map((c) => (
+            <li><a href={`/categoria/${c.slug}`} class="hover:text-brand-400 transition-colors">{c.name}</a></li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3">Más categorías</h4>
+        <ul class="space-y-2 text-sm">
+          {categories.slice(5).map((c) => (
+            <li><a href={`/categoria/${c.slug}`} class="hover:text-brand-400 transition-colors">{c.name}</a></li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3">Pagos seguros</h4>
+        <p class="text-sm text-gray-400 mb-3">Aceptamos WebPay (débito y crédito de todos los bancos chilenos).</p>
+        <div class="flex items-center gap-2 text-2xl">💳 🏦 🔒</div>
+        <p class="text-xs text-gray-500 mt-3">Dropshipping demo · Productos inspirados en bestsellers AliExpress</p>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-500">
+      © {new Date().getFullYear()} DropShip Chile. Tienda demo para fines educativos.
+    </div>
+  </div>
+</footer>

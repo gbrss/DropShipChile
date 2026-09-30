@@ -1,0 +1,87 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { categories, products } from '../data/products';
+
+const topProducts = [...products].sort((a, b) => b.sales - a.sales).slice(0, 8);
+---
+<Layout title="DropShip Chile — Los mejores productos de AliExpress">
+  <Header />
+  <main>
+    <!-- Hero -->
+    <section class="bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div class="max-w-2xl">
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">
+            Los bestsellers de AliExpress,<br/>
+            <span class="text-accent-500">enviados a Chile</span>
+          </h1>
+          <p class="text-lg text-brand-100 mb-8">
+            10 categorías · 100 productos top de ventas · Paga con WebPay de forma segura
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a href="#categorias" class="btn-accent">Explorar categorías</a>
+            <a href="#top-ventas" class="btn-secondary !bg-white/10 !text-white !border-white/30 hover:!bg-white/20">Top ventas</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section id="categorias" class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Categorías</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {categories.map((c) => (
+          <a href={`/categoria/${c.slug}`} class="card p-4 text-center hover:border-brand-300 group">
+            <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">{c.icon}</div>
+            <h3 class="font-semibold text-sm text-gray-800 group-hover:text-brand-600">{c.name}</h3>
+            <p class="text-xs text-gray-500 mt-1">10 productos</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Top sales -->
+    <section id="top-ventas" class="bg-white border-y border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">🔥 Más vendidos</h2>
+          <a href="/categoria/electronica" class="text-sm font-medium text-brand-600 hover:text-brand-700">Ver todos →</a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {topProducts.map((p) => <ProductCard product={p} />)}
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="flex items-start gap-4 p-5 bg-white rounded-xl border border-gray-100">
+          <span class="text-3xl">🚚</span>
+          <div>
+            <h3 class="font-semibold text-gray-900">Envío a todo Chile</h3>
+            <p class="text-sm text-gray-500 mt-1">Despacho desde proveedores verificados de AliExpress</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 bg-white rounded-xl border border-gray-100">
+          <span class="text-3xl">🔒</span>
+          <div>
+            <h3 class="font-semibold text-gray-900">Pago seguro WebPay</h3>
+            <p class="text-sm text-gray-500 mt-1">Débito y crédito de todos los bancos chilenos</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4 p-5 bg-white rounded-xl border border-gray-100">
+          <span class="text-3xl">⭐</span>
+          <div>
+            <h3 class="font-semibold text-gray-900">Productos top ventas</h3>
+            <p class="text-sm text-gray-500 mt-1">Seleccionados por volumen de ventas reales</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
