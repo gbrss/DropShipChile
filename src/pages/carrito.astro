@@ -15,11 +15,19 @@ import Footer from '../components/Footer.astro';
     <div id="cart-content" class="hidden">
       <div id="cart-items" class="space-y-4 mb-8"></div>
       <div class="bg-white rounded-xl border border-gray-200 p-6">
-        <div class="flex justify-between items-center mb-4">
-          <span class="text-gray-600">Subtotal</span>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-600">Subtotal (cliente paga)</span>
           <span id="cart-subtotal" class="text-xl font-bold text-brand-700">$0</span>
         </div>
-        <p class="text-sm text-gray-500 mb-4">El envío se calcula al finalizar la compra.</p>
+        <div class="flex justify-between items-center mb-2 text-sm">
+          <span class="text-gray-500">Costo proveedor est. (60%)</span>
+          <span id="cart-cost" class="text-gray-600">$0</span>
+        </div>
+        <div class="flex justify-between items-center mb-4 text-sm">
+          <span class="text-emerald-700 font-medium">Comisión tienda 40%</span>
+          <span id="cart-commission" class="font-bold text-emerald-700">$0</span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">El envío se calcula al finalizar la compra. Comisión fija del 40% sobre el precio de venta.</p>
         <a href="/checkout" class="btn-primary w-full text-center">Proceder al pago con WebPay</a>
       </div>
     </div>
@@ -59,7 +67,11 @@ import Footer from '../components/Footer.astro';
         </div>
       </div>`;
     }).join('');
+    const commission = Math.round(subtotal * 0.40);
+    const cost = subtotal - commission;
     document.getElementById('cart-subtotal')!.textContent = formatCLP(subtotal);
+    document.getElementById('cart-cost')!.textContent = formatCLP(cost);
+    document.getElementById('cart-commission')!.textContent = formatCLP(commission);
     document.querySelectorAll('.qty-minus').forEach((btn) => {
       btn.addEventListener('click', () => {
         const i = Number((btn as HTMLElement).dataset.idx);

@@ -91,3 +91,12 @@ Para producción:
 ## Licencia
 
 MIT — Uso libre para aprendizaje y demos.
+
+## Comisión por venta
+
+La tienda aplica una **comisión del 40%** sobre el precio de venta:
+
+- **60%** → costo estimado del proveedor (dropshipping)
+- **40%** → margen / comisión de la tienda
+
+Se muestra en ficha de producto, carrito y checkout. Constante: `COMMISSION_RATE = 0.40` en `src/data/products.ts`.

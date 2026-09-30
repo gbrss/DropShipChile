@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   image: string;
+  images: string[];
   rating: number;
   reviews: number;
   sales: number;
@@ -23,132 +24,666 @@ export interface Category {
   image: string;
 }
 
+const u = (id: string, w = 800) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+
 export const categories: Category[] = [
-  { id: 'electronica', name: 'Electrónica y Gadgets', slug: 'electronica', description: 'Auriculares, cargadores, smartwatches y accesorios tech', icon: '📱', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80' },
-  { id: 'moda', name: 'Moda y Accesorios', slug: 'moda', description: 'Ropa, joyería y accesorios de moda tendencia', icon: '👗', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80' },
-  { id: 'hogar', name: 'Hogar y Organización', slug: 'hogar', description: 'Organización, decoración y soluciones inteligentes', icon: '🏠', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80' },
-  { id: 'belleza', name: 'Belleza y Cuidado Personal', slug: 'belleza', description: 'Herramientas de belleza, skincare y accesorios', icon: '💄', image: 'https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=800&q=80' },
-  { id: 'salud', name: 'Salud y Bienestar', slug: 'salud', description: 'Masajeadores, correctores de postura y bienestar', icon: '🧘', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80' },
-  { id: 'mascotas', name: 'Mascotas', slug: 'mascotas', description: 'Accesorios, juguetes y tecnología para mascotas', icon: '🐾', image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80' },
-  { id: 'auto', name: 'Auto y Motos', slug: 'auto', description: 'Soportes, cargadores y accesorios para vehículos', icon: '🚗', image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&q=80' },
-  { id: 'deportes', name: 'Deportes y Outdoor', slug: 'deportes', description: 'Equipamiento deportivo, outdoor y fitness', icon: '⚽', image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba6851?w=800&q=80' },
-  { id: 'cocina', name: 'Cocina y Utensilios', slug: 'cocina', description: 'Utensilios de cocina y gadgets culinarios', icon: '🍳', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80' },
-  { id: 'oficina', name: 'Oficina y Smart Home', slug: 'oficina', description: 'Iluminación inteligente y accesorios de oficina', icon: '💡', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80' },
+  { id: 'electronica', name: 'Electrónica y Gadgets', slug: 'electronica', description: 'Auriculares, cargadores, smartwatches y accesorios tech más vendidos', icon: '📱', image: u('photo-1505740420928-5e560c06d30e') },
+  { id: 'moda', name: 'Moda y Accesorios', slug: 'moda', description: 'Ropa, joyería y accesorios de moda tendencia 2025-2026', icon: '👗', image: u('photo-1445205170230-053b83016050') },
+  { id: 'hogar', name: 'Hogar y Organización', slug: 'hogar', description: 'Organización, decoración y soluciones inteligentes para el hogar', icon: '🏠', image: u('photo-1586023492125-27b2c045efd7') },
+  { id: 'belleza', name: 'Belleza y Cuidado Personal', slug: 'belleza', description: 'Herramientas de belleza, skincare y accesorios de cuidado personal', icon: '💄', image: u('photo-1596462502278-27bfdd403348') },
+  { id: 'salud', name: 'Salud y Bienestar', slug: 'salud', description: 'Masajeadores, correctores de postura y dispositivos de bienestar', icon: '🧘', image: u('photo-1544367567-0f2fcb009e0b') },
+  { id: 'mascotas', name: 'Mascotas', slug: 'mascotas', description: 'Accesorios, juguetes y tecnología para perros y gatos', icon: '🐾', image: u('photo-1587300003388-59208cc962cb') },
+  { id: 'auto', name: 'Auto y Motos', slug: 'auto', description: 'Soportes, cargadores y accesorios para vehículos', icon: '🚗', image: u('photo-1492144534655-ae79c964c9d7') },
+  { id: 'deportes', name: 'Deportes y Outdoor', slug: 'deportes', description: 'Equipamiento deportivo, outdoor y fitness portátil', icon: '⚽', image: u('photo-1461896836934-ffe607ba6851') },
+  { id: 'cocina', name: 'Cocina y Utensilios', slug: 'cocina', description: 'Utensilios de cocina, organizadores y gadgets culinarios', icon: '🍳', image: u('photo-1556909114-f6e7ad7d3136') },
+  { id: 'oficina', name: 'Oficina y Smart Home', slug: 'oficina', description: 'Iluminación inteligente, organizadores y accesorios de oficina', icon: '💡', image: u('photo-1497366216548-37526070297c') },
 ];
 
-const img = (id: string) => `https://picsum.photos/seed/${id}/600/600`;
+function p(
+  id: string,
+  name: string,
+  slug: string,
+  description: string,
+  price: number,
+  originalPrice: number | undefined,
+  imageIds: string[],
+  rating: number,
+  reviews: number,
+  sales: number,
+  category: string,
+  tags: string[],
+  stock: number
+): Product {
+  const images = imageIds.map((pid) => u(pid, 800));
+  return {
+    id,
+    name,
+    slug,
+    description,
+    price,
+    originalPrice,
+    image: images[0],
+    images,
+    rating,
+    reviews,
+    sales,
+    category,
+    tags,
+    stock,
+  };
+}
 
 export const products: Product[] = [
-  // Electrónica
-  { id:'el-001', name:'Auriculares TWS Bluetooth 5.3 ANC', slug:'auriculares-tws-bluetooth-53', description:'Auriculares inalámbricos con cancelación de ruido, IPX4, 30h batería total.', price:12990, originalPrice:24990, image:img('el1'), rating:4.8, reviews:12450, sales:89000, category:'electronica', tags:['bluetooth','tws'], stock:150 },
-  { id:'el-002', name:'Cable USB-C 240W PD Fast Charge 2m', slug:'cable-usbc-240w-pd', description:'Cable carga ultrarrápida con chip E-Marker, compatible MacBook y Samsung.', price:5990, originalPrice:9990, image:img('el2'), rating:4.9, reviews:8900, sales:120000, category:'electronica', tags:['cable','carga'], stock:300 },
-  { id:'el-003', name:'Smartwatch Deportivo SpO2 GPS', slug:'smartwatch-deportivo-spo2', description:'Pantalla AMOLED 1.78", GPS, 100+ modos deportivos, batería 14 días.', price:24990, originalPrice:39990, image:img('el3'), rating:4.6, reviews:5600, sales:45000, category:'electronica', tags:['smartwatch','fitness'], stock:80 },
-  { id:'el-004', name:'Power Bank 20000mAh PD 65W', slug:'powerbank-20000mah-65w', description:'Batería externa con display LED, 3 puertos y carga bidireccional.', price:18990, originalPrice:29990, image:img('el4'), rating:4.7, reviews:7200, sales:67000, category:'electronica', tags:['powerbank'], stock:120 },
-  { id:'el-005', name:'Mini Proyector LED 1080p Android', slug:'mini-proyector-1080p', description:'Proyector portátil Full HD, Android 11, WiFi 6, 200 ANSI lumens.', price:59990, originalPrice:89990, image:img('el5'), rating:4.5, reviews:2100, sales:18000, category:'electronica', tags:['proyector'], stock:45 },
-  { id:'el-006', name:'Cargador Inalámbrico 3en1 MagSafe', slug:'cargador-inalambrico-3en1', description:'Estación de carga para iPhone, AirPods y Apple Watch, 15W.', price:15990, originalPrice:24990, image:img('el6'), rating:4.7, reviews:4300, sales:52000, category:'electronica', tags:['cargador','magsafe'], stock:90 },
-  { id:'el-007', name:'Webcam Full HD 1080p + Anillo LED', slug:'webcam-1080p-anillo-led', description:'Cámara con autofoco, micrófonos duales y anillo de luz ajustable.', price:21990, originalPrice:34990, image:img('el7'), rating:4.6, reviews:3800, sales:29000, category:'electronica', tags:['webcam'], stock:70 },
-  { id:'el-008', name:'Hub USB-C 7en1 HDMI 4K', slug:'hub-usbc-7en1-hdmi', description:'Adaptador multipuerto HDMI 4K, USB 3.0, PD 100W, lector SD/TF.', price:17990, originalPrice:27990, image:img('el8'), rating:4.8, reviews:5100, sales:41000, category:'electronica', tags:['hub','hdmi'], stock:110 },
-  { id:'el-009', name:'Auriculares de Sueño Bluetooth', slug:'auriculares-sueno-bluetooth', description:'Diadema ultra fina para dormir de lado, Bluetooth 5.3, 10h batería.', price:9990, originalPrice:15990, image:img('el9'), rating:4.4, reviews:2900, sales:35000, category:'electronica', tags:['sueno'], stock:95 },
-  { id:'el-010', name:'Radio Emergencia Solar + Manivela', slug:'radio-emergencia-solar', description:'Radio FM/AM/NOAA, linterna LED, SOS, carga solar y power bank 2000mAh.', price:19990, originalPrice:32990, image:img('el10'), rating:4.7, reviews:6400, sales:78000, category:'electronica', tags:['radio','emergencia'], stock:60 },
-  // Moda
-  { id:'mo-001', name:'Collar Capas Acero Inoxidable Set x3', slug:'collar-capas-acero', description:'Set de 3 collares hipoalergénicos dorados/plateados, diseño minimalista.', price:7990, originalPrice:14990, image:img('mo1'), rating:4.7, reviews:8900, sales:95000, category:'moda', tags:['joyeria'], stock:200 },
-  { id:'mo-002', name:'Pantalón Cargo Oversized Unisex', slug:'pantalon-cargo-oversized', description:'Cargo de algodón con múltiples bolsillos, corte oversized streetwear.', price:18990, originalPrice:29990, image:img('mo2'), rating:4.6, reviews:5600, sales:62000, category:'moda', tags:['pantalon','cargo'], stock:140 },
-  { id:'mo-003', name:'Anillos Ajustables Pack x5', slug:'anillos-ajustables-pack5', description:'5 anillos de acero inoxidable ajustables, diseños geométricos.', price:5990, originalPrice:9990, image:img('mo3'), rating:4.5, reviews:7200, sales:110000, category:'moda', tags:['anillos'], stock:250 },
-  { id:'mo-004', name:'Bolso Crossbody Cuero PU Cadena', slug:'bolso-crossbody-cadena', description:'Bandolera elegante con cierre magnético y cadena dorada desmontable.', price:14990, originalPrice:24990, image:img('mo4'), rating:4.8, reviews:4100, sales:38000, category:'moda', tags:['bolso'], stock:85 },
-  { id:'mo-005', name:'Gafas Sol Polarizadas UV400', slug:'gafas-sol-polarizadas', description:'Lentes polarizados con protección UV400, estilo aviador clásico.', price:8990, originalPrice:15990, image:img('mo5'), rating:4.6, reviews:6800, sales:74000, category:'moda', tags:['gafas'], stock:160 },
-  { id:'mo-006', name:'Cinturón Cuero Hebilla Automática', slug:'cinturon-cuero-automatico', description:'Cinturón de cuero genuino con hebilla de trinquete automática.', price:11990, originalPrice:19990, image:img('mo6'), rating:4.7, reviews:3500, sales:28000, category:'moda', tags:['cinturon'], stock:100 },
-  { id:'mo-007', name:'Bufanda Cachemira Sintética', slug:'bufanda-cachemira', description:'Bufanda 180x70cm tacto cachemira, no pica, 8 colores disponibles.', price:9990, originalPrice:17990, image:img('mo7'), rating:4.8, reviews:2900, sales:32000, category:'moda', tags:['bufanda'], stock:120 },
-  { id:'mo-008', name:'Reloj Minimalista Unisex Cuarzo', slug:'reloj-minimalista-unisex', description:'Reloj de cuarzo japonés 36mm, correa de malla, resistente agua 3ATM.', price:16990, originalPrice:27990, image:img('mo8'), rating:4.6, reviews:4800, sales:41000, category:'moda', tags:['reloj'], stock:75 },
-  { id:'mo-009', name:'Pendientes Aro Geométricos Pack x3', slug:'pendientes-aro-geometricos', description:'3 pares de aros de acero inoxidable hipoalergénicos, diseños modernos.', price:6990, originalPrice:12990, image:img('mo9'), rating:4.7, reviews:5200, sales:58000, category:'moda', tags:['pendientes'], stock:180 },
-  { id:'mo-010', name:'Gorra Snapback Bordada Ajustable', slug:'gorra-snapback-bordada', description:'Gorra de algodón con bordado frontal y cierre snapback.', price:7990, originalPrice:12990, image:img('mo10'), rating:4.5, reviews:3900, sales:47000, category:'moda', tags:['gorra'], stock:130 },
-  // Hogar
-  { id:'ho-001', name:'Cinta Nano Doble Cara 3m Reutilizable', slug:'cinta-nano-doble-cara', description:'Cinta de gel nano transparente, lavable, soporta hasta 5kg.', price:3990, originalPrice:7990, image:img('ho1'), rating:4.8, reviews:15600, sales:210000, category:'hogar', tags:['cinta'], stock:400 },
-  { id:'ho-002', name:'Organizador Joyas Modular con Espejo', slug:'organizador-joyas-modular', description:'Caja 4 niveles con compartimentos ajustables, espejo LED y llave.', price:18990, originalPrice:29990, image:img('ho2'), rating:4.7, reviews:4200, sales:36000, category:'hogar', tags:['organizador'], stock:70 },
-  { id:'ho-003', name:'Luz LED Sensor Movimiento Pack x3', slug:'luz-led-sensor-movimiento', description:'3 luces LED inalámbricas recargables con sensor de movimiento.', price:9990, originalPrice:17990, image:img('ho3'), rating:4.8, reviews:9800, sales:145000, category:'hogar', tags:['luz','sensor'], stock:200 },
-  { id:'ho-004', name:'Clips Organizadores Cables Pack 100u', slug:'soportes-cable-pack100', description:'Clips de nylon autoadhesivos reutilizables para ordenar cables.', price:4990, originalPrice:8990, image:img('ho4'), rating:4.6, reviews:11200, sales:180000, category:'hogar', tags:['cable'], stock:350 },
-  { id:'ho-005', name:'Alfombra Baño Memory Foam', slug:'alfombra-bano-memory-foam', description:'Alfombra absorbente 60x40cm, secado rápido, base antideslizante.', price:8990, originalPrice:14990, image:img('ho5'), rating:4.7, reviews:5600, sales:52000, category:'hogar', tags:['alfombra'], stock:110 },
-  { id:'ho-006', name:'Estantería Flotante Madera Pack x3', slug:'estanteria-flotante-madera', description:'3 estantes de pino con soportes ocultos, capacidad 15kg c/u.', price:15990, originalPrice:24990, image:img('ho6'), rating:4.5, reviews:3100, sales:27000, category:'hogar', tags:['estante'], stock:65 },
-  { id:'ho-007', name:'Humidificador Ultrasonic 500ml LED', slug:'humidificador-ultrasonic', description:'Niebla fría, apagado automático, 7 colores LED, silencioso.', price:12990, originalPrice:21990, image:img('ho7'), rating:4.6, reviews:4800, sales:43000, category:'hogar', tags:['humidificador'], stock:90 },
-  { id:'ho-008', name:'Organizador Zapatos Transparente x6', slug:'organizador-zapatos-x6', description:'Cajas apilables frontales transparentes, ventiladas, ahorra espacio.', price:14990, originalPrice:24990, image:img('ho8'), rating:4.7, reviews:3900, sales:34000, category:'hogar', tags:['zapatos'], stock:80 },
-  { id:'ho-009', name:'Cortinas Blackout Térmicas 2 Paneles', slug:'cortinas-blackout-termicas', description:'Cortinas 100% opacas 140x260cm, aislamiento térmico, ojales metálicos.', price:22990, originalPrice:35990, image:img('ho9'), rating:4.6, reviews:2700, sales:22000, category:'hogar', tags:['cortinas'], stock:55 },
-  { id:'ho-010', name:'Soporte TV Articulado 32-70"', slug:'soporte-tv-articulado', description:'Brazo articulado de pared, carga 40kg, inclinación y giro 180°.', price:27990, originalPrice:42990, image:img('ho10'), rating:4.8, reviews:5100, sales:29000, category:'hogar', tags:['soporte','tv'], stock:40 },
-  // Belleza
-  { id:'be-001', name:'Rizadores Cabello sin Calor Heatless', slug:'rizado-sin-calor', description:'Set de rizadores de satén sin calor, crea rizos naturales sin daño.', price:7990, originalPrice:14990, image:img('be1'), rating:4.7, reviews:11200, sales:156000, category:'belleza', tags:['cabello'], stock:220 },
-  { id:'be-002', name:'Cera Stick Flyaways Pack x2', slug:'cera-stick-flyaways', description:'Barra de cera no grasa para controlar pelos sueltos y peinados slick.', price:4990, originalPrice:8990, image:img('be2'), rating:4.8, reviews:9800, sales:190000, category:'belleza', tags:['cera'], stock:300 },
-  { id:'be-003', name:'Masajeador Jade + Gua Sha Set', slug:'masajeador-jade-gua-sha', description:'Rodillo de jade natural + herramienta Gua Sha para skincare.', price:8990, originalPrice:15990, image:img('be3'), rating:4.6, reviews:7600, sales:88000, category:'belleza', tags:['jade'], stock:150 },
-  { id:'be-004', name:'Pestañas Magnéticas Kit Completo', slug:'pestanas-magneticas', description:'3 pares de pestañas + delineador magnético, reutilizables 30 veces.', price:11990, originalPrice:19990, image:img('be4'), rating:4.5, reviews:5400, sales:67000, category:'belleza', tags:['pestanas'], stock:100 },
-  { id:'be-005', name:'Cepillo Facial Sónico Recargable', slug:'cepillo-facial-sonico', description:'Cepillo sónico 3 velocidades, IPX7, batería 30 días, 2 cabezales.', price:14990, originalPrice:24990, image:img('be5'), rating:4.7, reviews:4200, sales:41000, category:'belleza', tags:['cepillo'], stock:85 },
-  { id:'be-006', name:'Cortadora Cabello T9 Zero Gap', slug:'cortadora-t9-zero-gap', description:'Máquina profesional T9, cuchilla zero gap, 3h batería, 4 peines.', price:16990, originalPrice:27990, image:img('be6'), rating:4.6, reviews:8900, sales:72000, category:'belleza', tags:['cortadora'], stock:95 },
-  { id:'be-007', name:'Espejo Maquillaje LED Triple', slug:'espejo-maquillaje-led', description:'Espejo con 3 modos de luz, aumento 1x/3x/5x, batería recargable.', price:19990, originalPrice:32990, image:img('be7'), rating:4.8, reviews:3600, sales:28000, category:'belleza', tags:['espejo'], stock:60 },
-  { id:'be-008', name:'Set Brochas Maquillaje 12pcs', slug:'set-brochas-12pcs', description:'12 brochas veganas de alta densidad con estuche de viaje.', price:12990, originalPrice:21990, image:img('be8'), rating:4.7, reviews:5800, sales:49000, category:'belleza', tags:['brochas'], stock:110 },
-  { id:'be-009', name:'Rodillo Hielo Facial Acero', slug:'rodillo-hielo-facial', description:'Rodillo de hielo reutilizable, reduce hinchazón y cierra poros.', price:6990, originalPrice:11990, image:img('be9'), rating:4.6, reviews:4100, sales:53000, category:'belleza', tags:['hielo'], stock:140 },
-  { id:'be-010', name:'Difusor Aceites Esenciales 300ml', slug:'difusor-aceites-esenciales', description:'Difusor ultrasónico con 7 luces LED, temporizador y 6 aceites de regalo.', price:15990, originalPrice:25990, image:img('be10'), rating:4.7, reviews:4700, sales:38000, category:'belleza', tags:['difusor'], stock:75 },
-  // Salud
-  { id:'sa-001', name:'Masajeador Cuello EMS + Calor', slug:'masajeador-cuello-ems', description:'Masajeador cervical EMS con calor, 6 modos y 15 intensidades.', price:18990, originalPrice:32990, image:img('sa1'), rating:4.7, reviews:6800, sales:54000, category:'salud', tags:['masaje'], stock:90 },
-  { id:'sa-002', name:'Corrector Postura con Sensor', slug:'corrector-postura-sensor', description:'Wearable que vibra al detectar mala postura, app de tracking.', price:14990, originalPrice:24990, image:img('sa2'), rating:4.5, reviews:3900, sales:31000, category:'salud', tags:['postura'], stock:70 },
-  { id:'sa-003', name:'Pistola Masaje Muscular Deep Tissue', slug:'pistola-masaje-muscular', description:'Masajeador de percusión 6 cabezales, 30 velocidades, 6h batería.', price:29990, originalPrice:49990, image:img('sa3'), rating:4.8, reviews:5200, sales:28000, category:'salud', tags:['masaje','muscular'], stock:55 },
-  { id:'sa-004', name:'Calentador Pies Eléctrico Plegable', slug:'calentador-pies-electrico', description:'3 niveles de temperatura, temporizador, plegable y lavable, 60W.', price:16990, originalPrice:27990, image:img('sa4'), rating:4.6, reviews:8100, sales:67000, category:'salud', tags:['calentador'], stock:100 },
-  { id:'sa-005', name:'Esterilizador UV Cepillo Dientes', slug:'esterilizador-uv-cepillo', description:'Estuche portátil UV-C elimina 99.9% bacterias, compatible la mayoría.', price:9990, originalPrice:16990, image:img('sa5'), rating:4.7, reviews:4500, sales:42000, category:'salud', tags:['uv'], stock:120 },
-  { id:'sa-006', name:'Soporte Lumbar Silla Oficina', slug:'soporte-lumbar-oficina', description:'Almohada lumbar memory foam con correas ajustables, funda lavable.', price:11990, originalPrice:19990, image:img('sa6'), rating:4.6, reviews:6200, sales:51000, category:'salud', tags:['lumbar'], stock:85 },
-  { id:'sa-007', name:'Báscula Inteligente Análisis Corporal', slug:'bascula-inteligente-app', description:'Báscula Bluetooth 13 métricas, sincroniza con app, hasta 180kg.', price:17990, originalPrice:29990, image:img('sa7'), rating:4.5, reviews:3800, sales:29000, category:'salud', tags:['bascula'], stock:65 },
-  { id:'sa-008', name:'Almohada Viaje Memory Foam', slug:'almohada-viaje-memory', description:'Almohada cervical inflable + memory foam, funda satén, bolsa viaje.', price:8990, originalPrice:14990, image:img('sa8'), rating:4.6, reviews:5100, sales:46000, category:'salud', tags:['almohada'], stock:130 },
-  { id:'sa-009', name:'Masajeador Pies Rodillos + Calor', slug:'masajeador-pies-calor', description:'Masajeador shiatsu con rodillos, calor y 3 intensidades.', price:34990, originalPrice:54990, image:img('sa9'), rating:4.7, reviews:2900, sales:18000, category:'salud', tags:['pies'], stock:40 },
-  { id:'sa-010', name:'Monitor Presión Arterial Muñeca', slug:'monitor-presion-muneca', description:'Tensiómetro digital, memoria 90 mediciones, detector arritmia.', price:15990, originalPrice:25990, image:img('sa10'), rating:4.5, reviews:3400, sales:25000, category:'salud', tags:['presion'], stock:70 },
-  // Mascotas
-  { id:'ma-001', name:'Guantes Aseo Mascotas Pack x2', slug:'guantes-aseo-mascotas', description:'Guantes de silicona para eliminar pelo muerto de perros y gatos.', price:5990, originalPrice:9990, image:img('ma1'), rating:4.8, reviews:12400, sales:175000, category:'mascotas', tags:['guantes'], stock:280 },
-  { id:'ma-002', name:'Collar GPS Inteligente Perros', slug:'collar-gps-perros', description:'GPS tiempo real, geocerca, monitor actividad, IP67, batería 7 días.', price:39990, originalPrice:59990, image:img('ma2'), rating:4.6, reviews:2800, sales:19000, category:'mascotas', tags:['gps'], stock:45 },
-  { id:'ma-003', name:'Fuente Agua Automática 2L', slug:'fuente-agua-mascotas', description:'Dispensador con filtro de carbón, flujo silencioso, capacidad 2L.', price:14990, originalPrice:24990, image:img('ma3'), rating:4.7, reviews:5600, sales:48000, category:'mascotas', tags:['fuente'], stock:90 },
-  { id:'ma-004', name:'Cama Ortopédica Memory Foam', slug:'cama-ortopedica-perros', description:'Cama con colchón memory foam, funda lavable, tallas S a XL.', price:24990, originalPrice:39990, image:img('ma4'), rating:4.8, reviews:4100, sales:32000, category:'mascotas', tags:['cama'], stock:55 },
-  { id:'ma-005', name:'Juguete Interactivo Premios', slug:'juguete-interactivo-premios', description:'Pelota que dispensa snacks al jugar, estimula intelecto.', price:9990, originalPrice:16990, image:img('ma5'), rating:4.6, reviews:3900, sales:41000, category:'mascotas', tags:['juguete'], stock:110 },
-  { id:'ma-006', name:'Arnés Reflectante Antitirones', slug:'arnes-reflectante-perros', description:'Arnés ergonómico con tiras reflectantes y acolchado en pecho.', price:11990, originalPrice:19990, image:img('ma6'), rating:4.7, reviews:5200, sales:45000, category:'mascotas', tags:['arnes'], stock:100 },
-  { id:'ma-007', name:'Cepillo Autolimpiante Pelo', slug:'cepillo-autolimpiante-mascotas', description:'Cepillo con botón autolimpieza, elimina 95% del pelo muerto.', price:7990, originalPrice:13990, image:img('ma7'), rating:4.8, reviews:8700, sales:92000, category:'mascotas', tags:['cepillo'], stock:160 },
-  { id:'ma-008', name:'Transportín Plegable Tela', slug:'transportin-plegable', description:'Transportín suave plegable con malla ventilada y base lavable.', price:18990, originalPrice:29990, image:img('ma8'), rating:4.5, reviews:3100, sales:24000, category:'mascotas', tags:['transportin'], stock:50 },
-  { id:'ma-009', name:'Comedero Elevado Doble', slug:'comedero-elevado-doble', description:'Comedero y bebedero elevados con inclinación ergonómica.', price:12990, originalPrice:21990, image:img('ma9'), rating:4.6, reviews:4400, sales:37000, category:'mascotas', tags:['comedero'], stock:80 },
-  { id:'ma-010', name:'Cámara Vigilancia Mascotas 360°', slug:'camara-vigilancia-mascotas', description:'Cámara 1080p rotación 360°, visión nocturna, audio bidireccional.', price:27990, originalPrice:42990, image:img('ma10'), rating:4.7, reviews:3600, sales:22000, category:'mascotas', tags:['camara'], stock:40 },
-  // Auto
-  { id:'au-001', name:'Soporte Magnético Celular Auto', slug:'soporte-magnetico-auto', description:'Soporte magnético ventilación/tablero, carga inalámbrica 15W opcional.', price:7990, originalPrice:14990, image:img('au1'), rating:4.8, reviews:9800, sales:125000, category:'auto', tags:['soporte'], stock:200 },
-  { id:'au-002', name:'Cargador Auto USB-C PD 65W Dual', slug:'cargador-auto-65w', description:'Cargador vehículo 2x USB-C PD 65W + USB-A, carga simultánea.', price:9990, originalPrice:16990, image:img('au2'), rating:4.7, reviews:5600, sales:68000, category:'auto', tags:['cargador'], stock:140 },
-  { id:'au-003', name:'Aspiradora Mano Auto 120W', slug:'aspiradora-mano-auto', description:'Aspiradora portátil inalámbrica 120W, 3 boquillas, 30 min batería.', price:19990, originalPrice:32990, image:img('au3'), rating:4.6, reviews:4200, sales:35000, category:'auto', tags:['aspiradora'], stock:70 },
-  { id:'au-004', name:'Organizador Maletero Plegable', slug:'organizador-maletero', description:'Organizador baúl plegable 50L con múltiples bolsillos.', price:12990, originalPrice:21990, image:img('au4'), rating:4.7, reviews:3800, sales:29000, category:'auto', tags:['organizador'], stock:85 },
-  { id:'au-005', name:'Cubiertas Asiento Universales 5pcs', slug:'cubiertas-asiento-auto', description:'Juego completo de fundas elásticas, protección manchas y desgaste.', price:24990, originalPrice:39990, image:img('au5'), rating:4.5, reviews:5100, sales:42000, category:'auto', tags:['cubiertas'], stock:60 },
-  { id:'au-006', name:'Cámara Retroceso Inalámbrica HD', slug:'camara-retroceso-inalambrica', description:'Cámara estacionamiento 1080p, visión nocturna IP68, monitor 4.3".', price:29990, originalPrice:45990, image:img('au6'), rating:4.6, reviews:2900, sales:18000, category:'auto', tags:['camara'], stock:45 },
-  { id:'au-007', name:'Kit Limpieza Interior Auto 8pcs', slug:'kit-limpieza-auto', description:'Kit completo limpia tablero, llantas, microfibras y aplicadores.', price:14990, originalPrice:24990, image:img('au7'), rating:4.7, reviews:4700, sales:38000, category:'auto', tags:['limpieza'], stock:95 },
-  { id:'au-008', name:'Adaptador Carga EV Tipo2 a Tipo1', slug:'adaptador-carga-ev', description:'Adaptador carga vehículos eléctricos, cable 5m, 32A.', price:45990, originalPrice:69990, image:img('au8'), rating:4.5, reviews:1200, sales:8500, category:'auto', tags:['ev'], stock:25 },
-  { id:'au-009', name:'Soporte Tablet/GPS Tablero', slug:'soporte-tablet-tablero', description:'Brazo articulado de vacío para tablets 7-13", rotación 360°.', price:11990, originalPrice:19990, image:img('au9'), rating:4.6, reviews:3400, sales:27000, category:'auto', tags:['soporte'], stock:75 },
-  { id:'au-010', name:'Luz Ambiente Interior RGB App', slug:'luz-ambiente-rgb-auto', description:'Tira LED RGB controlable por app, sincronización con música.', price:9990, originalPrice:17990, image:img('au10'), rating:4.7, reviews:6100, sales:55000, category:'auto', tags:['led'], stock:120 },
-  // Deportes
-  { id:'de-001', name:'Bandas Resistencia Set 5 Niveles', slug:'bandas-resistencia-set5', description:'5 bandas látex 5-25kg, asas, anclaje puerta y bolsa transporte.', price:9990, originalPrice:16990, image:img('de1'), rating:4.8, reviews:8900, sales:98000, category:'deportes', tags:['bandas'], stock:180 },
-  { id:'de-002', name:'Esterilla Yoga Antideslizante 6mm', slug:'esterilla-yoga-6mm', description:'Colchoneta TPE ecológica 183x61cm, doble cara antideslizante.', price:12990, originalPrice:21990, image:img('de2'), rating:4.7, reviews:7200, sales:67000, category:'deportes', tags:['yoga'], stock:110 },
-  { id:'de-003', name:'Botella Motivacional 1L Marcadores', slug:'botella-motivacional-1l', description:'Botella tritán libre BPA con marcadores de hora y pajita.', price:6990, originalPrice:11990, image:img('de3'), rating:4.6, reviews:9500, sales:112000, category:'deportes', tags:['botella'], stock:220 },
-  { id:'de-004', name:'Soga Saltar Contador Digital', slug:'soga-saltar-contador', description:'Cuerda ajustable con contador de saltos, calorías y temporizador.', price:7990, originalPrice:13990, image:img('de4'), rating:4.5, reviews:4800, sales:43000, category:'deportes', tags:['soga'], stock:130 },
-  { id:'de-005', name:'Mochila Deportiva Impermeable 30L', slug:'mochila-deportiva-30l', description:'Mochila gimnasio con compartimento zapatos, bolsillo húmedo y USB.', price:18990, originalPrice:29990, image:img('de5'), rating:4.7, reviews:3600, sales:28000, category:'deportes', tags:['mochila'], stock:70 },
-  { id:'de-006', name:'Guantes Fitness con Muñequera', slug:'guantes-fitness-muneca', description:'Guantes con agarre siliconado, muñequeras ajustables y ventilación.', price:8990, originalPrice:14990, image:img('de6'), rating:4.6, reviews:5100, sales:49000, category:'deportes', tags:['guantes'], stock:150 },
-  { id:'de-007', name:'Bolsa Seca Impermeable 20L', slug:'bolsa-seca-20l', description:'Dry bag PVC 500D sellado enrollable, flotante, ideal kayak/playa.', price:9990, originalPrice:16990, image:img('de7'), rating:4.8, reviews:4200, sales:36000, category:'deportes', tags:['bolsa'], stock:90 },
-  { id:'de-008', name:'Rodillera Compresión Pack x2', slug:'rodillera-compresion', description:'Par de rodilleras neopreno con gel silicona y soporte lateral.', price:11990, originalPrice:19990, image:img('de8'), rating:4.5, reviews:3900, sales:32000, category:'deportes', tags:['rodillera'], stock:100 },
-  { id:'de-009', name:'Linterna Frontal LED 1000 Lúmenes', slug:'linterna-frontal-1000lm', description:'Frontales 1000lm, 5 modos, USB-C, IPX6, ideal running/camping.', price:14990, originalPrice:24990, image:img('de9'), rating:4.7, reviews:5600, sales:41000, category:'deportes', tags:['linterna'], stock:80 },
-  { id:'de-010', name:'Bici Estática Plegable Monitor', slug:'bici-estatica-plegable', description:'Bicicleta ejercicio plegable, 8 niveles resistencia, monitor LCD.', price:89990, originalPrice:129990, image:img('de10'), rating:4.4, reviews:1800, sales:9500, category:'deportes', tags:['bici'], stock:20 },
-  // Cocina
-  { id:'co-001', name:'Cortador Verduras Multifunción 12en1', slug:'cortador-verduras-12en1', description:'Picador con 12 cuchillas intercambiables y contenedor 1.5L.', price:12990, originalPrice:22990, image:img('co1'), rating:4.7, reviews:11200, sales:145000, category:'cocina', tags:['cortador'], stock:160 },
-  { id:'co-002', name:'Botella Spray Aceite Oliva', slug:'botella-aceite-spray', description:'Dispensador spray de vidrio, control porciones, ideal air fryer.', price:5990, originalPrice:9990, image:img('co2'), rating:4.8, reviews:15600, sales:210000, category:'cocina', tags:['aceite'], stock:300 },
-  { id:'co-003', name:'Bolsas Silicona Reutilizables x6', slug:'bolsas-silicona-x6', description:'6 bolsas silicona food-grade, herméticas, aptas freezer/microondas.', price:9990, originalPrice:17990, image:img('co3'), rating:4.7, reviews:8900, sales:98000, category:'cocina', tags:['bolsas'], stock:200 },
-  { id:'co-004', name:'Balanza Cocina Digital Precisión', slug:'balanza-cocina-digital', description:'Báscula 5kg/1g, pantalla LCD, función tara, unidades g/oz/ml.', price:7990, originalPrice:13990, image:img('co4'), rating:4.6, reviews:6700, sales:72000, category:'cocina', tags:['balanza'], stock:140 },
-  { id:'co-005', name:'Organizador Especias Magnético', slug:'organizador-especias-magnetico', description:'Rack magnético acero inox con 12 frascos de vidrio.', price:16990, originalPrice:27990, image:img('co5'), rating:4.7, reviews:4100, sales:34000, category:'cocina', tags:['especias'], stock:75 },
-  { id:'co-006', name:'Tapas Silicona Stretch Pack x6', slug:'tapas-silicona-stretch', description:'6 tapas elásticas que se adaptan a cualquier recipiente.', price:6990, originalPrice:11990, image:img('co6'), rating:4.8, reviews:7800, sales:89000, category:'cocina', tags:['tapas'], stock:180 },
-  { id:'co-007', name:'Molino Café Manual Acero', slug:'molino-cafe-manual', description:'Molino de manivela con muelas de acero ajustables, cuerpo aluminio.', price:19990, originalPrice:32990, image:img('co7'), rating:4.6, reviews:3200, sales:21000, category:'cocina', tags:['cafe'], stock:55 },
-  { id:'co-008', name:'Utensilios Silicona Set 10pcs', slug:'utensilios-silicona-set10', description:'Set silicona alimentaria resistente 230°C, mango madera.', price:14990, originalPrice:24990, image:img('co8'), rating:4.7, reviews:5400, sales:46000, category:'cocina', tags:['utensilios'], stock:100 },
-  { id:'co-009', name:'Dispensador Jabón + Esponja 2en1', slug:'dispensador-jabon-esponja', description:'Dispensador jabón líquido con soporte esponja, bomba presión 400ml.', price:8990, originalPrice:14990, image:img('co9'), rating:4.5, reviews:3900, sales:33000, category:'cocina', tags:['dispensador'], stock:110 },
-  { id:'co-010', name:'Termo Café Acero 500ml', slug:'termo-cafe-500ml', description:'Botella térmica doble pared, caliente 12h / frío 24h, a prueba fugas.', price:11990, originalPrice:19990, image:img('co10'), rating:4.8, reviews:6800, sales:58000, category:'cocina', tags:['termo'], stock:130 },
-  // Oficina
-  { id:'of-001', name:'Lámpara Escritorio LED + Carga Inalámbrica', slug:'lampara-escritorio-carga', description:'Lámpara LED 5 niveles + 3 temperaturas, base cargador 15W y USB.', price:24990, originalPrice:39990, image:img('of1'), rating:4.7, reviews:4500, sales:32000, category:'oficina', tags:['lampara'], stock:70 },
-  { id:'of-002', name:'Organizador Escritorio Bambú', slug:'organizador-escritorio', description:'Organizador bambú con 3 cajones, porta lápices y bandeja superior.', price:14990, originalPrice:24990, image:img('of2'), rating:4.6, reviews:3800, sales:27000, category:'oficina', tags:['organizador'], stock:85 },
-  { id:'of-003', name:'Soporte Monitor Elevado Cajón', slug:'soporte-monitor-elevado', description:'Elevador monitor bambú, altura ajustable, cajón almacenamiento.', price:19990, originalPrice:32990, image:img('of3'), rating:4.7, reviews:4100, sales:29000, category:'oficina', tags:['soporte'], stock:60 },
-  { id:'of-004', name:'Tira LED Inteligente WiFi 5m RGBIC', slug:'tira-led-wifi-5m', description:'Tira LED RGBIC control app/voz (Alexa/Google), sincronización musical.', price:17990, originalPrice:29990, image:img('of4'), rating:4.6, reviews:7200, sales:61000, category:'oficina', tags:['led','wifi'], stock:120 },
-  { id:'of-005', name:'Timbre Inteligente WiFi Cámara HD', slug:'timbre-inteligente-camara', description:'Timbre video 1080p, visión nocturna, detección movimiento, audio 2 vías.', price:34990, originalPrice:54990, image:img('of5'), rating:4.5, reviews:2800, sales:19000, category:'oficina', tags:['timbre'], stock:40 },
-  { id:'of-006', name:'Soporte Laptop Aluminio Ajustable', slug:'soporte-laptop-aluminio', description:'Stand ergonómico aluminio 11-17", 6 niveles altura, plegable.', price:16990, originalPrice:27990, image:img('of6'), rating:4.8, reviews:5600, sales:44000, category:'oficina', tags:['soporte','laptop'], stock:95 },
-  { id:'of-007', name:'Enchufe Inteligente WiFi Pack x4', slug:'enchufe-inteligente-x4', description:'4 enchufes WiFi, control app/voz, temporizador, monitoreo consumo.', price:19990, originalPrice:32990, image:img('of7'), rating:4.7, reviews:4900, sales:38000, category:'oficina', tags:['enchufe'], stock:100 },
-  { id:'of-008', name:'Proyector Estrellas Astronauta Galaxy', slug:'proyector-estrellas-astronauta', description:'Proyector galaxia forma astronauta, 8 modos nebulosa, control remoto.', price:14990, originalPrice:24990, image:img('of8'), rating:4.6, reviews:6300, sales:52000, category:'oficina', tags:['proyector'], stock:80 },
-  { id:'of-009', name:'Mouse Ergonómico Vertical Inalámbrico', slug:'mouse-ergonomico-vertical', description:'Mouse vertical 2.4G+BT, 6 botones, DPI ajustable, reduce túnel carpiano.', price:13990, originalPrice:22990, image:img('of9'), rating:4.7, reviews:4100, sales:31000, category:'oficina', tags:['mouse'], stock:90 },
-  { id:'of-010', name:'Cámara Seguridad Interior 360° WiFi', slug:'camara-seguridad-360', description:'Cámara IP 1080p rotación 360°, seguimiento automático, visión nocturna.', price:22990, originalPrice:36990, image:img('of10'), rating:4.6, reviews:3500, sales:24000, category:'oficina', tags:['camara'], stock:55 },
+  // ========== ELECTRÓNICA ==========
+  p('el-001', 'Auriculares TWS Bluetooth 5.3 con Cancelación de Ruido', 'auriculares-tws-bluetooth-53',
+    'Auriculares inalámbricos semintraurales con cancelación activa de ruido (ANC), graves potentes y certificación IPX4. Ofrecen hasta 30 horas de autonomía total con el estuche de carga, Bluetooth 5.3 de baja latencia y micrófonos duales para llamadas claras. Ideales para deporte, trabajo y uso diario. Incluyen almohadillas de varios tamaños y cable de carga USB-C.',
+    12990, 24990,
+    ['photo-1590658268037-6bf12165a8df', 'photo-1484704849700-f032a568e944', 'photo-1572569511254-d8f925fe2cbb'],
+    4.8, 12450, 89000, 'electronica', ['bluetooth', 'tws', 'audio', 'anc'], 150),
+
+  p('el-002', 'Cable USB-C 240W PD Fast Charge 2m con Chip E-Marker', 'cable-usbc-240w-pd',
+    'Cable de carga ultrarrápida USB-C a USB-C de 2 metros con chip E-Marker certificado. Soporta Power Delivery hasta 240W (5A), ideal para MacBook Pro, iPad, Samsung Galaxy, Huawei y laptops gaming. Transmisión de datos hasta 480 Mbps. Construcción trenzada resistente, conectores reforzados y compatibilidad universal con dispositivos PD.',
+    5990, 9990,
+    ['photo-1583863788434-e58a36330cf0', 'photo-1625948515291-69613efd103f', 'photo-1609091839311-b9bdbb3d0e0f'],
+    4.9, 8900, 120000, 'electronica', ['cable', 'carga', 'usb-c', 'pd'], 300),
+
+  p('el-003', 'Smartwatch Deportivo con Monitor de Sueño y SpO2', 'smartwatch-deportivo-spo2',
+    'Reloj inteligente con pantalla AMOLED de 1.78", GPS integrado, sensor SpO2, monitor de frecuencia cardíaca 24/7 y seguimiento del sueño. Más de 100 modos deportivos, resistencia al agua 5ATM y batería de hasta 14 días de uso típico. Notificaciones de llamadas y mensajes, control de música y esfera personalizable. Compatible con iOS y Android.',
+    24990, 39990,
+    ['photo-1523275335684-37898b6baf30', 'photo-1579586337278-3befd40fd17a', 'photo-1434494878577-86c23bcb06b9'],
+    4.6, 5600, 45000, 'electronica', ['smartwatch', 'fitness', 'gps', 'salud'], 80),
+
+  p('el-004', 'Power Bank 20000mAh PD 65W con Display LED', 'powerbank-20000mah-65w',
+    'Batería externa de alta capacidad 20000mAh con carga rápida bidireccional PD 65W. Pantalla LED digital que muestra el porcentaje exacto de batería. Tres puertos: 2× USB-C y 1× USB-A, permitiendo cargar laptop, tablet y smartphone a la vez. Protección contra sobrecarga, cortocircuito y temperatura. Diseño compacto con carcasa mate antideslizante.',
+    18990, 29990,
+    ['photo-1609091839311-b9bdbb3d0e0f', 'photo-1625948515291-69613efd103f', 'photo-1583863788434-e58a36330cf0'],
+    4.7, 7200, 67000, 'electronica', ['powerbank', 'carga', 'portatil', 'pd'], 120),
+
+  p('el-005', 'Mini Proyector LED 1080p Portátil Android', 'mini-proyector-1080p',
+    'Proyector portátil Full HD 1080p nativo con sistema Android 11 integrado, WiFi 6 y Bluetooth 5.0. 200 ANSI lumens, contraste 2000:1 y proyección de 30 a 120 pulgadas. Reproduce Netflix, YouTube y apps directamente sin conectar dispositivos. Altavoz integrado, puerto HDMI y USB. Ideal para cine en casa, camping y presentaciones. Incluye control remoto y trípode.',
+    59990, 89990,
+    ['photo-1478720568477-152d9b164e26', 'photo-1593784991095-a205069470b6', 'photo-1522869635100-9f4c5e86aa37'],
+    4.5, 2100, 18000, 'electronica', ['proyector', 'cine', 'android', 'portatil'], 45),
+
+  p('el-006', 'Cargador Inalámbrico 3 en 1 MagSafe Compatible', 'cargador-inalambrico-3en1',
+    'Estación de carga inalámbrica 3 en 1 compatible con MagSafe para iPhone 12 o superior, AirPods y Apple Watch. Carga rápida de 15W en el teléfono, 5W en auriculares y carga magnética para el reloj. Diseño plegable y base antideslizante. Indicadores LED de estado. Alimentación por USB-C PD (adaptador no incluido). Certificación Qi y protección térmica.',
+    15990, 24990,
+    ['photo-1615750174989-5768186b6a97', 'photo-1609091839311-b9bdbb3d0e0f', 'photo-1583863788434-e58a36330cf0'],
+    4.7, 4300, 52000, 'electronica', ['cargador', 'magsafe', 'inalambrico', 'apple'], 90),
+
+  p('el-007', 'Webcam Full HD 1080p con Micrófono Dual y Anillo LED', 'webcam-1080p-anillo-led',
+    'Cámara web Full HD 1080p a 30 fps con autofoco, corrección automática de luz y micrófonos duales con reducción de ruido. Anillo LED integrado con 3 temperaturas de color y brillo ajustable. Clip universal para monitor y trípode de 1/4". Compatible con Zoom, Teams, Meet y streaming. Plug & play USB, sin drivers. Ideal para teletrabajo, clases online y creadores de contenido.',
+    21990, 34990,
+    ['photo-1587825140708-dfaf72ae4b04', 'photo-1614624532983-4ce03382d63d', 'photo-1598327105666-5b89351aff97'],
+    4.6, 3800, 29000, 'electronica', ['webcam', 'streaming', 'oficina', 'led'], 70),
+
+  p('el-008', 'Hub USB-C 7 en 1 con HDMI 4K y Lector SD', 'hub-usbc-7en1-hdmi',
+    'Adaptador multipuerto USB-C 7 en 1: HDMI 4K@60Hz, 3× USB 3.0 (5 Gbps), USB-C PD 100W para cargar el portátil, lector de tarjetas SD y microSD. Compatible con MacBook, iPad Pro, Dell XPS, HP y Chromebook. Carcasa de aluminio disipadora de calor. Diseño compacto y cable corto reforzado. Perfecto para expandir conectividad en un solo puerto.',
+    17990, 27990,
+    ['photo-1625948515291-69613efd103f', 'photo-1583863788434-e58a36330cf0', 'photo-1609091839311-b9bdbb3d0e0f'],
+    4.8, 5100, 41000, 'electronica', ['hub', 'usb-c', 'hdmi', '4k'], 110),
+
+  p('el-009', 'Auriculares de Sueño Bluetooth Ultra Delgados', 'auriculares-sueno-bluetooth',
+    'Auriculares de diadema ultrafinos diseñados para dormir de lado sin molestias. Bluetooth 5.3, máscara de ojos integrada con almohadilla de espuma memory foam y hasta 10 horas de reproducción. Controles táctiles, modo de ruido blanco y app con temporizador de apagado. Tela transpirable lavable. Ideales para insomnio, viajes en avión y meditación.',
+    9990, 15990,
+    ['photo-1484704849700-f032a568e944', 'photo-1590658268037-6bf12165a8df', 'photo-1572569511254-d8f925fe2cbb'],
+    4.4, 2900, 35000, 'electronica', ['sueno', 'bluetooth', 'relajacion', 'viajes'], 95),
+
+  p('el-010', 'Radio de Emergencia Solar + Manivela + Power Bank', 'radio-emergencia-solar',
+    'Radio multifunción de emergencia con FM/AM/NOAA, linterna LED de alta potencia, sirena SOS y batería 2000mAh. Se carga por panel solar, manivela manual o USB. Funciona como power bank para cargar el celular en situaciones de corte de luz o camping. Resistente al agua IPX3, brújula integrada y antena telescópica. Incluye cable USB y manual en español.',
+    19990, 32990,
+    ['photo-1593784991095-a205069470b6', 'photo-1504280390367-361c6d9f38f4', 'photo-1478720568477-152d9b164e26'],
+    4.7, 6400, 78000, 'electronica', ['radio', 'emergencia', 'solar', 'camping'], 60),
+
+  // ========== MODA ==========
+  p('mo-001', 'Collar en Capas de Acero Inoxidable Set 3 Piezas', 'collar-capas-acero',
+    'Set de tres collares en capas de acero inoxidable 316L hipoalergénico, acabado dorado o plateado. Diseño minimalista contemporáneo con eslabones finos y colgantes geométricos sutiles. No se oxidan ni pierden color con el uso diario o el agua. Longitudes escalonadas (40, 45 y 50 cm) con extensión. Perfectos para combinar o regalar. Incluyen caja de presentación.',
+    7990, 14990,
+    ['photo-1599643478518-a784e5dc4c8f', 'photo-1515562141207-7a88fb7ce338', 'photo-1605100804763-247f67b3557e'],
+    4.7, 8900, 95000, 'moda', ['joyeria', 'collar', 'acero', 'capas'], 200),
+
+  p('mo-002', 'Pantalón Cargo Unisex Oversized Streetwear', 'pantalon-cargo-oversized',
+    'Pantalón cargo unisex de corte oversized en algodón twill resistente. Múltiples bolsillos laterales con solapa, cintura elástica con cordón ajustable y bajo recto. Disponible en negro, beige y verde militar. Costuras reforzadas y tejido lavable a máquina. Estilo streetwear versátil para uso diario, viajes o look urbano. Tallas S a XXL.',
+    18990, 29990,
+    ['photo-1624378439575-d8705ad7ae80', 'photo-1542272454315-4c01d7abdf4a', 'photo-1473966968600-fa801b869a1a'],
+    4.6, 5600, 62000, 'moda', ['pantalon', 'cargo', 'streetwear', 'unisex'], 140),
+
+  p('mo-003', 'Anillos Ajustables Minimalistas Pack x5', 'anillos-ajustables-pack5',
+    'Pack de 5 anillos ajustables de acero inoxidable con diseños geométricos, líneas finas y texturas mate/brillo. Abiertos en la parte posterior para adaptarse a casi cualquier talla de dedo. Resistentes al agua, no se oxidan y son hipoalergénicos. Ideales para apilar o usar por separado. Incluyen bolsita de terciopelo para guardar.',
+    5990, 9990,
+    ['photo-1605100804763-247f67b3557e', 'photo-1515562141207-7a88fb7ce338', 'photo-1599643478518-a784e5dc4c8f'],
+    4.5, 7200, 110000, 'moda', ['anillos', 'joyeria', 'pack', 'minimalista'], 250),
+
+  p('mo-004', 'Bolso Crossbody de Cuero PU con Cadena', 'bolso-crossbody-cadena',
+    'Bolso bandolera crossbody de cuero sintético PU de alta calidad, textura suave y acabado premium. Cierre magnético, compartimento principal amplio, bolsillo interior con cremallera y cadena dorada desmontable (también se usa como clutch). Forro resistente y tamaño ideal para celular, billetera y llaves. Disponible en negro, camel y burdeos.',
+    14990, 24990,
+    ['photo-1548036328-c9fa89d128fa', 'photo-1590874103328-eac38a67478a', 'photo-1566150905458-1bf1fc113f0d'],
+    4.8, 4100, 38000, 'moda', ['bolso', 'crossbody', 'mujer', 'cadena'], 85),
+
+  p('mo-005', 'Gafas de Sol Polarizadas UV400 Estilo Retro', 'gafas-sol-polarizadas',
+    'Gafas de sol polarizadas con protección UV400 certificada, lentes antirreflejo y montura ligera de acetato estilo aviador clásico. Reduce el deslumbramiento en carretera, playa y nieve. Incluye estuche rígido, paño de microfibra y funda blanda. Bisagras reforzadas y ajuste cómodo en nariz. Unisex, varias combinaciones de color de montura y lente.',
+    8990, 15990,
+    ['photo-1511499767150-a48a237f0083', 'photo-1572635196237-14b3f281503f', 'photo-1473496169904-658ba7c44d8a'],
+    4.6, 6800, 74000, 'moda', ['gafas', 'sol', 'polarizadas', 'uv400'], 160),
+
+  p('mo-006', 'Cinturón de Cuero Genuino con Hebilla Automática', 'cinturon-cuero-automatico',
+    'Cinturón de cuero genuino de primera calidad con hebilla de trinquete automática (sin agujeros). Se ajusta con precisión al contorno de la cintura y se libera con un botón. Ancho 3,5 cm, longitud usable 100–120 cm. Costuras reforzadas y hebilla de aleación con acabado cepillado. Presentado en caja, ideal como regalo para hombre.',
+    11990, 19990,
+    ['photo-1624222247344-550fb60583fd', 'photo-1553062407-98eeb64c6a62', 'photo-1601925260368-ae2f83cf8b7f'],
+    4.7, 3500, 28000, 'moda', ['cinturon', 'cuero', 'hombre', 'automatico'], 100),
+
+  p('mo-007', 'Bufanda de Cachemira Sintética Ultra Suave', 'bufanda-cachemira',
+    'Bufanda rectangular de 180×70 cm con tacto cachemira sintético ultra suave que no pica. Tejido denso y cálido, ideal para otoño e invierno. No genera electricidad estática y es fácil de lavar a mano. Disponible en 8 colores (gris, camel, negro, rojo, beige, azul, verde y crema). Acabado con flecos discretos. Perfecta para regalo o uso diario.',
+    9990, 17990,
+    ['photo-1520903920243-00d872a2d1c9', 'photo-1601925260368-ae2f83cf8b7f', 'photo-1434389677669-e08fc41f1a9e'],
+    4.8, 2900, 32000, 'moda', ['bufanda', 'invierno', 'cachemira', 'accesorio'], 120),
+
+  p('mo-008', 'Reloj de Pulsera Minimalista Unisex Cuarzo', 'reloj-minimalista-unisex',
+    'Reloj de cuarzo japonés con caja de 36 mm, cristal mineral y correa de malla de acero intercambiable. Diseño nórdico minimalista, esfera limpia con índices sutiles y manecillas delgadas. Resistente al agua 3ATM (salpicaduras). Cierre desplegable con seguridad. Unisex, elegante para oficina o uso casual. Incluye caja de regalo.',
+    16990, 27990,
+    ['photo-1524592094714-0f0654e20314', 'photo-1523275335684-37898b6baf30', 'photo-1434494878577-86c23bcb06b9'],
+    4.6, 4800, 41000, 'moda', ['reloj', 'minimalista', 'unisex', 'cuarzo'], 75),
+
+  p('mo-009', 'Pendientes de Aro Geométricos Acero Inoxidable', 'pendientes-aro-geometricos',
+    'Pack de 3 pares de pendientes de aro en acero inoxidable hipoalergénico con diseños geométricos modernos (círculo, hexágono y línea). No se oxidan ni provocan alergias. Cierre de presión seguro. Ligeros y cómodos para uso diario. Acabado dorado o plateado. Incluyen tarjetas de presentación para regalo.',
+    6990, 12990,
+    ['photo-1535632066927-ab7c9ab60908', 'photo-1515562141207-7a88fb7ce338', 'photo-1599643478518-a784e5dc4c8f'],
+    4.7, 5200, 58000, 'moda', ['pendientes', 'aros', 'joyeria', 'pack'], 180),
+
+  p('mo-010', 'Gorra Snapback Bordada Unisex Ajustable', 'gorra-snapback-bordada',
+    'Gorra snapback de algodón estructurado con bordado frontal de alta densidad, visera plana y cierre ajustable de plástico. Forro interior transpirable y ojales de ventilación. Estilo streetwear unisex, talla única que se adapta a la mayoría de cabezas. Disponible en negro, blanco, navy y camuflaje. Ideal para sol, deporte y look casual.',
+    7990, 12990,
+    ['photo-1588850561407-ed78c456fedb', 'photo-1575429198097-0414ec08e8cd', 'photo-1521369909029-2afed882baee'],
+    4.5, 3900, 47000, 'moda', ['gorra', 'snapback', 'streetwear', 'bordado'], 130),
+
+  // ========== HOGAR ==========
+  p('ho-001', 'Cinta Nano Doble Cara Ultra Fuerte Reutilizable', 'cinta-nano-doble-cara',
+    'Cinta adhesiva de gel nano transparente de 3 metros, lavable y reutilizable cientos de veces. Soporta hasta 5 kg en superficies lisas (azulejo, vidrio, metal, plástico). Sin residuos al retirar. Ideal para colgar decoración, organizadores de baño y cocina, cableado y bricolaje sin taladrar. Se limpia con agua y jabón para recuperar adherencia.',
+    3990, 7990,
+    ['photo-1581578731548-c64695cc6952', 'photo-1558618666-fcd25c85cd64', 'photo-1603484477859-abe6a73f9363'],
+    4.8, 15600, 210000, 'hogar', ['cinta', 'adhesivo', 'nano', 'organizacion'], 400),
+
+  p('ho-002', 'Organizador de Joyas Modular con Espejo', 'organizador-joyas-modular',
+    'Caja organizadora de joyas de 4 niveles con compartimentos ajustables, cajones acolchados y espejo LED con sensor táctil. Cierre con llave para mayor seguridad. Interior de terciopelo que protege anillos, collares y pendientes. Tamaño ideal para tocador o viaje. Estructura apilable y diseño elegante en blanco o rosa.',
+    18990, 29990,
+    ['photo-1611591437281-460bfbe1220a', 'photo-1515562141207-7a88fb7ce338', 'photo-1605100804763-247f67b3557e'],
+    4.7, 4200, 36000, 'hogar', ['organizador', 'joyas', 'espejo', 'led'], 70),
+
+  p('ho-003', 'Luz LED Sensor de Movimiento Recargable x3', 'luz-led-sensor-movimiento',
+    'Pack de 3 luces LED inalámbricas con sensor de movimiento PIR, batería recargable USB-C y base magnética/adhesiva. Se encienden automáticamente al detectar movimiento en la oscuridad (alcance ~3 m). Ideal para armarios, pasillos, escaleras y bajo muebles. Autonomía de varias semanas según uso. Luz blanca cálida, sin cables ni instalación eléctrica.',
+    9990, 17990,
+    ['photo-1565814329452-e1efa11c5b5b', 'photo-1507473885765-e6ed057f782c', 'photo-1513694203232-719a280e022f'],
+    4.8, 9800, 145000, 'hogar', ['luz', 'sensor', 'led', 'recargable'], 200),
+
+  p('ho-004', 'Soportes de Cable Autoadhesivos Pack 100u', 'soportes-cable-pack100',
+    'Pack de 100 clips organizadores de cables de nylon autoadhesivos, reutilizables y orientables. Mantienen ordenados los cables del escritorio, TV y detrás de muebles. Adhesivo 3M fuerte que no daña superficies al retirar. Varios tamaños en el set para cables finos y grueso. Solución simple y económica para el desorden de cables.',
+    4990, 8990,
+    ['photo-1558618666-fcd25c85cd64', 'photo-1581578731548-c64695cc6952', 'photo-1603484477859-abe6a73f9363'],
+    4.6, 11200, 180000, 'hogar', ['cable', 'organizador', 'clips', 'pack'], 350),
+
+  p('ho-005', 'Alfombra Antideslizante para Baño Memory Foam', 'alfombra-bano-memory-foam',
+    'Alfombra de baño de espuma viscoelástica (memory foam) de 60×40 cm, altamente absorbente y de secado rápido. Base de goma antideslizante que se adhiere al suelo húmedo. Funda de microfibra suave, lavable a máquina. Reduce el riesgo de resbalones y aporta confort al salir de la ducha. Disponible en gris, beige y azul.',
+    8990, 14990,
+    ['photo-1584622650111-993a426fbf0a', 'photo-1552321554-5fefe8c9ef14', 'photo-1600566753190-17f0baa2a6c3'],
+    4.7, 5600, 52000, 'hogar', ['alfombra', 'bano', 'memory-foam', 'antideslizante'], 110),
+
+  p('ho-006', 'Estantería Flotante de Madera x3 con Soportes Ocultos', 'estanteria-flotante-madera',
+    'Set de 3 estantes flotantes de madera de pino natural con soportes metálicos ocultos. Capacidad de carga hasta 15 kg por estante. Instalación sencilla con plantilla incluida (opción de tornillos o sistema adhesivo reforzado según superficie). Largo 40/50/60 cm. Acabado barnizado mate. Ideales para libros, plantas y decoración sin ocupar suelo.',
+    15990, 24990,
+    ['photo-1595428774223-ef52624120d2', 'photo-1586023492125-27b2c045efd7', 'photo-1513694203232-719a280e022f'],
+    4.5, 3100, 27000, 'hogar', ['estante', 'madera', 'flotante', 'decoracion'], 65),
+
+  p('ho-007', 'Humidificador Ultrasonic 500ml con Luz Nocturna', 'humidificador-ultrasonic',
+    'Humidificador de niebla fría ultrasónico de 500 ml, silencioso (<30 dB), con apagado automático al vaciarse el depósito. 7 colores de luz LED nocturna, modos continuo e intermitente. Ideal para dormitorio, oficina y habitación infantil. Mejora la calidad del aire en climas secos y ayuda a aliviar congestión. Incluye cable USB y manual.',
+    12990, 21990,
+    ['photo-1585771724684-38269d6639fd', 'photo-1608571423902-eed4a5ad8108', 'photo-1507473885765-e6ed057f782c'],
+    4.6, 4800, 43000, 'hogar', ['humidificador', 'aire', 'luz', 'ultrasonic'], 90),
+
+  p('ho-008', 'Organizador de Zapatos Apilable Transparente x6', 'organizador-zapatos-x6',
+    'Set de 6 cajas organizadoras de zapatos apilables con frontal transparente y ventilación lateral. Permiten ver el contenido sin abrir, protegen del polvo y ahorran espacio vertical en el armario. Plástico rígido y fácil de limpiar. Capacidad para zapatillas, tacones y botines. Dimensiones aproximadas 33×23×13 cm por caja.',
+    14990, 24990,
+    ['photo-1603484477859-abe6a73f9363', 'photo-1558618666-fcd25c85cd64', 'photo-1586023492125-27b2c045efd7'],
+    4.7, 3900, 34000, 'hogar', ['zapatos', 'organizador', 'armario', 'apilable'], 80),
+
+  p('ho-009', 'Cortinas Blackout Térmicas 2 Paneles', 'cortinas-blackout-termicas',
+    'Par de cortinas blackout 100% opacas con aislamiento térmico y acústico ligero. Tamaño 140×260 cm por panel, ojales metálicos para barra estándar. Tejido denso que bloquea la luz solar y ayuda a mantener la temperatura de la habitación. Lavables a máquina. Colores: gris, beige, azul navy y negro. Ideales para dormitorio y salas de cine en casa.',
+    22990, 35990,
+    ['photo-1513694203232-719a280e022f', 'photo-1586023492125-27b2c045efd7', 'photo-1565814329452-e1efa11c5b5b'],
+    4.6, 2700, 22000, 'hogar', ['cortinas', 'blackout', 'termicas', 'opacas'], 55),
+
+  p('ho-010', 'Soporte de Pared para TV Articulado 32-70"', 'soporte-tv-articulado',
+    'Soporte de pared articulado para televisores de 32 a 70 pulgadas, carga máxima 40 kg, patrón VESA hasta 600×400. Brazo de doble articulación con inclinación ±15° y giro 180°. Construcción de acero reforzado, nivel de burbuja incluido y plantilla de instalación. Permite acercar/alejar la TV y ocultar cables. Compatible con la mayoría de marcas.',
+    27990, 42990,
+    ['photo-1593359677879-a4bb92f829d1', 'photo-1461151304267-38535e780c79', 'photo-1593784991095-a205069470b6'],
+    4.8, 5100, 29000, 'hogar', ['soporte', 'tv', 'pared', 'articulado'], 40),
+
+  // ========== BELLEZA ==========
+  p('be-001', 'Rizadores de Cabello sin Calor (Heatless Curler)', 'rizado-sin-calor',
+    'Set de rizadores de satén sin calor: cinta de seda, gomas y horquillas. Se colocan por la noche y al despertar obtienes rizos naturales sin dañar el cabello con planchas o rizadores eléctricos. Reduce el frizz y rompe menos el cabello. Incluye tutorial ilustrado. Apto para cabello medio y largo. Reutilizable y fácil de lavar.',
+    7990, 14990,
+    ['photo-1522338140262-f46f5913618a', 'photo-1631730486572-226b1e126218', 'photo-1519699047748-d1dafe01ba9e'],
+    4.7, 11200, 156000, 'belleza', ['cabello', 'rizado', 'sin-calor', 'saten'], 220),
+
+  p('be-002', 'Cera en Stick para Peinar Flyaways Pack x2', 'cera-stick-flyaways',
+    'Pack de 2 barras de cera de peinado no grasa para controlar pelos sueltos (flyaways), baby hairs y peinados slick back. Fórmula ligera que no apelmaza ni deja residuos blancos. Ideal para pelucas, trenzas, niños y peinados de oficina. Aplicación precisa tipo barra de labios. Larga duración y se retira fácilmente con champú.',
+    4990, 8990,
+    ['photo-1631730486572-226b1e126218', 'photo-1522338140262-f46f5913618a', 'photo-1519699047748-d1dafe01ba9e'],
+    4.8, 9800, 190000, 'belleza', ['cera', 'cabello', 'peinado', 'flyaways'], 300),
+
+  p('be-003', 'Masajeador Facial de Jade y Rodillo Gua Sha', 'masajeador-jade-gua-sha',
+    'Set de rodillo facial de jade natural auténtico + herramienta Gua Sha. Ayuda a reducir la hinchazón matutina, mejorar la circulación y potenciar la absorción de sérums y cremas. Uso en frío (se puede guardar en nevera). Piedra lisa y fresca, mango ergonómico. Incluye bolsa de terciopelo y guía de técnicas básicas de masaje facial.',
+    8990, 15990,
+    ['photo-1616394584738-fc6e612e71b9', 'photo-1570172619604-923e4814dd52', 'photo-1596462502278-27bfdd403348'],
+    4.6, 7600, 88000, 'belleza', ['jade', 'masaje', 'skincare', 'gua-sha'], 150),
+
+  p('be-004', 'Pestañas Magnéticas Reutilizables Kit Completo', 'pestanas-magneticas',
+    'Kit completo con 3 pares de pestañas magnéticas de distinto volumen + delineador magnético de larga duración. Se aplican sin pegamento en segundos: el delineador actúa como imán. Reutilizables hasta 30 veces si se cuidan. Aspecto natural o glam según el par. Incluye pinza de aplicación y instrucciones. Ideal para principiantes.',
+    11990, 19990,
+    ['photo-1512496015851-a90fb38ba796', 'photo-1596462502278-27bfdd403348', 'photo-1522335789203-aabd1fc54bc9'],
+    4.5, 5400, 67000, 'belleza', ['pestanas', 'magneticas', 'maquillaje', 'kit'], 100),
+
+  p('be-005', 'Cepillo de Limpieza Facial Sónico Recargable', 'cepillo-facial-sonico',
+    'Cepillo facial sónico con 3 velocidades de vibración, 2 cabezales intercambiables (limpieza y suave) y batería recargable de hasta 30 días. Certificación IPX7 (usable en la ducha). Elimina impurezas y maquillaje residual mejor que solo con las manos. Temporizador de 1 minuto. Incluye base de carga USB y funda de viaje.',
+    14990, 24990,
+    ['photo-1556228720-195a672e8a03', 'photo-1570172619604-923e4814dd52', 'photo-1596462502278-27bfdd403348'],
+    4.7, 4200, 41000, 'belleza', ['cepillo', 'facial', 'sonico', 'limpieza'], 85),
+
+  p('be-006', 'Cortadora de Cabello Profesional T9 Zero Gap', 'cortadora-t9-zero-gap',
+    'Máquina de corte profesional estilo T9 con cuchilla zero gap ajustable, ideal para fades, contornos, barba y cuerpo. Motor potente, batería de litio de hasta 3 horas de uso continuo y carga USB-C. Incluye 4 peines guía, aceite, cepillo y estuche. Cuerpo ergonómico antideslizante. Popular entre barberos y uso doméstico.',
+    16990, 27990,
+    ['photo-1621607512215-592785a8f2f8', 'photo-1503951914875-452162b0f3f1', 'photo-1585747860715-2ba37e789b2b'],
+    4.6, 8900, 72000, 'belleza', ['cortadora', 'barba', 'profesional', 'fade'], 95),
+
+  p('be-007', 'Espejo de Maquillaje con Luz LED Triple', 'espejo-maquillaje-led',
+    'Espejo de tocador con triple panel, 3 modos de luz LED (fría, cálida y natural), aumento 1× / 3× / 5× y brillo regulable. Batería recargable o uso con cable USB. Plegable para guardar o viajar. Base antideslizante. Ideal para maquillaje profesional en casa, cejas y cuidado de la piel con luz uniforme sin sombras.',
+    19990, 32990,
+    ['photo-1631217868264-e5b90bb7e133', 'photo-1596462502278-27bfdd403348', 'photo-1522335789203-aabd1fc54bc9'],
+    4.8, 3600, 28000, 'belleza', ['espejo', 'led', 'maquillaje', 'tocador'], 60),
+
+  p('be-008', 'Set de Brochas de Maquillaje Profesional 12pcs', 'set-brochas-12pcs',
+    'Set profesional de 12 brochas veganas de alta densidad con cerdas sintéticas suaves, mango de madera y ferula metálica. Incluye piezas para base, corrector, polvo, contour, difuminado de ojos y labios. Estuche de viaje con cremallera. No retienen producto ni se deforman con el lavado. Ideales para maquillaje diario y profesional.',
+    12990, 21990,
+    ['photo-1515688594390-b649af70d282', 'photo-1596462502278-27bfdd403348', 'photo-1522335789203-aabd1fc54bc9'],
+    4.7, 5800, 49000, 'belleza', ['brochas', 'maquillaje', 'set', 'veganas'], 110),
+
+  p('be-009', 'Rodillo de Hielo Facial de Acero Inoxidable', 'rodillo-hielo-facial',
+    'Rodillo facial de hielo reutilizable de acero inoxidable de grado alimenticio. Se llena con agua y se congela; al pasarlo por el rostro reduce hinchazón, cierra poros y revitaliza la piel. Efecto lifting temporal y calmante post-ejercicio o después del sol. Incluye funda protectora. Fácil de limpiar y usar cada mañana.',
+    6990, 11990,
+    ['photo-1570172619604-923e4814dd52', 'photo-1616394584738-fc6e612e71b9', 'photo-1596462502278-27bfdd403348'],
+    4.6, 4100, 53000, 'belleza', ['hielo', 'facial', 'skincare', 'rodillo'], 140),
+
+  p('be-010', 'Difusor de Aceites Esenciales Ultrasónico', 'difusor-aceites-esenciales',
+    'Difusor de aromaterapia ultrasónico de 300 ml con 7 luces LED de color, temporizador (1/3/6 h) y apagado automático. Niebla fría que no calienta los aceites. Incluye 6 aceites esenciales de regalo (lavanda, eucalipto, té verde, naranja, menta y limón). Silencioso, ideal para dormitorio, yoga y oficina. Alimentación USB.',
+    15990, 25990,
+    ['photo-1608571423902-eed4a5ad8108', 'photo-1585771724684-38269d6639fd', 'photo-1603006905003-be475563bc59'],
+    4.7, 4700, 38000, 'belleza', ['difusor', 'aromaterapia', 'aceites', 'led'], 75),
+
+  // ========== SALUD ==========
+  p('sa-001', 'Masajeador de Cuello y Hombros EMS Portátil', 'masajeador-cuello-ems',
+    'Masajeador cervical portátil con tecnología EMS (estimulación muscular eléctrica) y función de calor. 6 modos de masaje y 15 niveles de intensidad. Se coloca alrededor del cuello sin manos. Alivia la tensión por trabajo de oficina y malas posturas. Batería recargable, diseño ligero y almohadillas de silicona reemplazables. Uso doméstico y de viaje.',
+    18990, 32990,
+    ['photo-1544161515-4ab6ce6db874', 'photo-1571019614242-c5c5dee9f50b', 'photo-1544367567-0f2fcb009e0b'],
+    4.7, 6800, 54000, 'salud', ['masaje', 'cuello', 'ems', 'calor'], 90),
+
+  p('sa-002', 'Corrector de Postura Inteligente con Sensor', 'corrector-postura-sensor',
+    'Dispositivo wearable discreto que se fija en la espalda o se lleva como clip y vibra suavemente cuando detecta mala postura. App para iOS/Android con historial, recordatorios y metas diarias. Batería de hasta 7 días. Ayuda a crear el hábito de mantener la espalda recta en oficina y estudio. Ligero, hipoalergénico y recargable USB.',
+    14990, 24990,
+    ['photo-1571019614242-c5c5dee9f50b', 'photo-1544367567-0f2fcb009e0b', 'photo-1571019613454-1cb2f99b2d8b'],
+    4.5, 3900, 31000, 'salud', ['postura', 'sensor', 'oficina', 'wearable'], 70),
+
+  p('sa-003', 'Pistola de Masaje Muscular Deep Tissue', 'pistola-masaje-muscular',
+    'Pistola de masaje de percusión deep tissue con 6 cabezales intercambiables, 30 niveles de velocidad y batería de hasta 6 horas. Ideal para recuperación post-entrenamiento, contracturas y puntos gatillo. Motor silencioso brushless, empuñadura antideslizante y maletín de transporte. Uso en piernas, espalda, hombros y brazos. Potencia profesional a precio accesible.',
+    29990, 49990,
+    ['photo-1599058945522-28d584b6f14f', 'photo-1544161515-4ab6ce6db874', 'photo-1571019613454-1cb2f99b2d8b'],
+    4.8, 5200, 28000, 'salud', ['masaje', 'muscular', 'fitness', 'percusion'], 55),
+
+  p('sa-004', 'Calentador de Pies Eléctrico Plegable', 'calentador-pies-electrico',
+    'Calentador de pies eléctrico con 3 niveles de temperatura, temporizador de seguridad y diseño plegable para guardar. Funda de felpa lavable, consumo bajo (~60 W) y protección contra sobrecalentamiento. Ideal para inviernos fríos, oficina y personas con mala circulación. Enchufe estándar, listo para usar. Tamaño que cabe bajo el escritorio.',
+    16990, 27990,
+    ['photo-1601925260368-ae2f83cf8b7f', 'photo-1544161515-4ab6ce6db874', 'photo-1584100936595-c0654b55a2e2'],
+    4.6, 8100, 67000, 'salud', ['calentador', 'pies', 'invierno', 'electrico'], 100),
+
+  p('sa-005', 'Esterilizador UV para Cepillo de Dientes', 'esterilizador-uv-cepillo',
+    'Estuche portátil con luz UV-C que elimina hasta el 99,9 % de bacterias del cepillo de dientes en minutos. Compatible con la mayoría de cepillos manuales y cabezales de eléctricos. Batería recargable, tapa hermética y tamaño de bolsillo. Ideal para viajes y baño compartido. Indicador LED de ciclo completo. Fácil de limpiar.',
+    9990, 16990,
+    ['photo-1607613009820-a29f7bb81c04', 'photo-1556228720-195a672e8a03', 'photo-1584622650111-993a426fbf0a'],
+    4.7, 4500, 42000, 'salud', ['uv', 'esterilizador', 'higiene', 'cepillo'], 120),
+
+  p('sa-006', 'Soporte Lumbar para Silla de Oficina', 'soporte-lumbar-oficina',
+    'Almohada lumbar ergonómica de memory foam con correas ajustables que se fijan a cualquier silla de oficina o auto. Sostiene la curva natural de la zona lumbar y reduce el dolor por sedentarismo. Funda transpirable desmontable y lavable. Densidad media-firme. Recomendada para jornadas largas frente al computador.',
+    11990, 19990,
+    ['photo-1586023492125-27b2c045efd7', 'photo-1497366216548-37526070297c', 'photo-1571019614242-c5c5dee9f50b'],
+    4.6, 6200, 51000, 'salud', ['lumbar', 'oficina', 'ergonomia', 'memory-foam'], 85),
+
+  p('sa-007', 'Báscula Inteligente con App y Análisis Corporal', 'bascula-inteligente-app',
+    'Báscula inteligente Bluetooth que mide peso, grasa corporal, masa muscular, agua, IMC y hasta 13 métricas. Sincroniza con app gratuita iOS/Android, perfiles múltiples y gráficos de evolución. Plataforma de vidrio templado, capacidad 180 kg, precisión automática. Alimentación por pilas (incluidas). Ideal para seguimiento de objetivos fitness.',
+    17990, 29990,
+    ['photo-1571019613454-1cb2f99b2d8b', 'photo-1571019614242-c5c5dee9f50b', 'photo-1544367567-0f2fcb009e0b'],
+    4.5, 3800, 29000, 'salud', ['bascula', 'inteligente', 'fitness', 'app'], 65),
+
+  p('sa-008', 'Almohada de Viaje Memory Foam Inflable', 'almohada-viaje-memory',
+    'Almohada cervical de viaje combinando inflado ajustable y relleno de memory foam en la zona de contacto. Funda de satén suave, bolsa de transporte compacta y válvula de inflado rápida. Soporta el cuello en avión, auto y tren. Se desinfla al mínimo para la maleta. Fácil de limpiar. Color gris antracita unisex.',
+    8990, 14990,
+    ['photo-1584100936595-c0654b55a2e2', 'photo-1544161515-4ab6ce6db874', 'photo-1601925260368-ae2f83cf8b7f'],
+    4.6, 5100, 46000, 'salud', ['almohada', 'viaje', 'cuello', 'memory-foam'], 130),
+
+  p('sa-009', 'Masajeador de Pies con Rodillos y Calor', 'masajeador-pies-calor',
+    'Masajeador de pies tipo shiatsu con rodillos giratorios, función de calor y 3 intensidades. Estimula la circulación, alivia la fatiga tras el trabajo o el deporte y relaja la planta y el arco. Carcasa ergonómica, fácil de limpiar y cable de alimentación estándar. Uso en casa sentado; ideal para regalo a personas que pasan mucho tiempo de pie.',
+    34990, 54990,
+    ['photo-1544161515-4ab6ce6db874', 'photo-1571019613454-1cb2f99b2d8b', 'photo-1601925260368-ae2f83cf8b7f'],
+    4.7, 2900, 18000, 'salud', ['pies', 'masaje', 'calor', 'shiatsu'], 40),
+
+  p('sa-010', 'Monitor de Presión Arterial de Muñeca', 'monitor-presion-muneca',
+    'Tensiómetro digital de muñeca con pantalla LCD grande, detección de arritmia, memoria de 90 mediciones y promedio de las últimas lecturas. Manguito ajustable, apagado automático y funda de transporte. Fácil de usar en casa para seguimiento de la presión. No sustituye consulta médica; útil como referencia diaria. Pilas incluidas.',
+    15990, 25990,
+    ['photo-1576091160399-112ba8d25d1d', 'photo-1571019613454-1cb2f99b2d8b', 'photo-1576091160550-2173dba999ef'],
+    4.5, 3400, 25000, 'salud', ['presion', 'monitor', 'tensometro', 'salud'], 70),
+
+  // ========== MASCOTAS ==========
+  p('ma-001', 'Guantes de Aseo para Mascotas Pack x2', 'guantes-aseo-mascotas',
+    'Pack de 2 guantes de silicona para cepillar y eliminar el pelo muerto de perros y gatos mientras los acaricias. Nódulos flexibles que masajean la piel y recogen el pelo en seco o en el baño. Fáciles de enjuagar y secar. Talla única elástica. Reduce la cantidad de pelo en sofás y ropa. Ideales para razas de doble capa.',
+    5990, 9990,
+    ['photo-1587300003388-59208cc962cb', 'photo-1450778869180-41d0601e046e', 'photo-1548199973-03cce0bbc87b'],
+    4.8, 12400, 175000, 'mascotas', ['guantes', 'aseo', 'pelo', 'silicona'], 280),
+
+  p('ma-002', 'Collar GPS Inteligente para Perros', 'collar-gps-perros',
+    'Collar con GPS en tiempo real, geocerca (alerta si sale de una zona), monitor de actividad y seguimiento de salud básico. Impermeable IP67, batería de hasta 7 días y app iOS/Android. Localización por GPS + LBS + WiFi. Ajustable a varios tamaños de cuello. Ideal para perros que se escapan o paseos en zonas abiertas. SIM no incluida (según región).',
+    39990, 59990,
+    ['photo-1583511655857-d19b40a7a54e', 'photo-1601758228041-f3b2795255f1', 'photo-1548199973-03cce0bbc87b'],
+    4.6, 2800, 19000, 'mascotas', ['gps', 'collar', 'inteligente', 'perros'], 45),
+
+  p('ma-003', 'Fuente de Agua Automática para Mascotas 2L', 'fuente-agua-mascotas',
+    'Fuente de agua automática de 2 litros con bomba silenciosa y filtro de carbón activado que retiene pelo e impurezas. Flujo continuo que incentiva a beber más (útil en gatos). Fácil de desmontar y lavar, bandeja ancha anti-salpicaduras. Alimentación USB de bajo consumo. Compatible con perros pequeños/medianos y gatos.',
+    14990, 24990,
+    ['photo-1548199973-03cce0bbc87b', 'photo-1450778869180-41d0601e046e', 'photo-1583337130417-3346a1be7dee'],
+    4.7, 5600, 48000, 'mascotas', ['fuente', 'agua', 'automatica', 'filtro'], 90),
+
+  p('ma-004', 'Cama Ortopédica Memory Foam para Perros', 'cama-ortopedica-perros',
+    'Cama ortopédica con colchón de memory foam que alivia articulaciones y mejora el descanso de perros senior o activos. Funda desmontable lavable a máquina, base antideslizante y bordes elevados tipo nido. Disponible en tallas S a XL. Tejido resistente a arañazos y fácil de aspirar. Ideal para interior y zonas de descanso favoritas.',
+    24990, 39990,
+    ['photo-1541781774459-bb2a86f7f0a9', 'photo-1587300003388-59208cc962cb', 'photo-1548199973-03cce0bbc87b'],
+    4.8, 4100, 32000, 'mascotas', ['cama', 'ortopedica', 'perros', 'memory-foam'], 55),
+
+  p('ma-005', 'Juguete Interactivo de Dispensación de Premios', 'juguete-interactivo-premios',
+    'Pelota o dispensador interactivo que libera snacks al empujarlo o girarlo. Estimula el intelecto, reduce el aburrimiento y la ansiedad por separación. Material resistente no tóxico, fácil de rellenar y lavar. Ajustable en dificultad. Apto para perros medianos y gatos curiosos. No incluye premios; usar croquetas o treats secos.',
+    9990, 16990,
+    ['photo-1535294435445-c4464030753a', 'photo-1587300003388-59208cc962cb', 'photo-1450778869180-41d0601e046e'],
+    4.6, 3900, 41000, 'mascotas', ['juguete', 'interactivo', 'premios', 'enriquecimiento'], 110),
+
+  p('ma-006', 'Arnés Reflectante Ajustable Antitirones', 'arnes-reflectante-perros',
+    'Arnés ergonómico antitirones con tiras reflectantes 360°, acolchado en pecho y abdomen, y correas ajustables en cuello y pecho. Distribuye la presión para evitar ahogo. Hebillas de liberación rápida y anilla frontal/dorsal para la correa. Ideal para paseos nocturnos y entrenamiento. Tallas según contorno de pecho. Material transpirable.',
+    11990, 19990,
+    ['photo-1601758228041-f3b2795255f1', 'photo-1583511655857-d19b40a7a54e', 'photo-1548199973-03cce0bbc87b'],
+    4.7, 5200, 45000, 'mascotas', ['arnes', 'reflectante', 'paseo', 'antitirones'], 100),
+
+  p('ma-007', 'Cepillo Autolimpiante para Pelo de Mascotas', 'cepillo-autolimpiante-mascotas',
+    'Cepillo con cerdas de acero inoxidable y botón de autolimpieza: al pulsar, el pelo se desprende del cepillo a un recipiente o superficie. Elimina hasta el 95 % del pelo muerto en pocas pasadas. Mango ergonómico antideslizante. Apto para perros y gatos de pelo corto, medio y largo. Reduce el pelo en casa y mejora el brillo del pelaje.',
+    7990, 13990,
+    ['photo-1450778869180-41d0601e046e', 'photo-1587300003388-59208cc962cb', 'photo-1548199973-03cce0bbc87b'],
+    4.8, 8700, 92000, 'mascotas', ['cepillo', 'pelo', 'autolimpieza', 'aseo'], 160),
+
+  p('ma-008', 'Transportín Plegable de Tela para Mascotas', 'transportin-plegable',
+    'Transportín suave plegable de tela resistente con malla ventilada en tres lados, base acolchada lavable y asa reforzada + correa de hombro. Se pliega plano para guardar. Varias tallas según peso de la mascota. Útil para visitas al veterinario y viajes en auto. Consultar normas de aerolínea si se usa en avión. Cierre de cremallera seguro.',
+    18990, 29990,
+    ['photo-1548199973-03cce0bbc87b', 'photo-1587300003388-59208cc962cb', 'photo-1601758228041-f3b2795255f1'],
+    4.5, 3100, 24000, 'mascotas', ['transportin', 'viaje', 'plegable', 'tela'], 50),
+
+  p('ma-009', 'Comedero Elevado Doble con Antideslizante', 'comedero-elevado-doble',
+    'Set de comedero y bebedero elevados con inclinación ergonómica que reduce la tensión en cuello y digestión. Base antideslizante de goma, bowls de acero inoxidable extraíbles y lavables. Altura adecuada para razas medianas. Menos derrames y más higiene. Estructura estable de plástico reforzado. Fácil de montar y limpiar a diario.',
+    12990, 21990,
+    ['photo-1583337130417-3346a1be7dee', 'photo-1548199973-03cce0bbc87b', 'photo-1450778869180-41d0601e046e'],
+    4.6, 4400, 37000, 'mascotas', ['comedero', 'elevado', 'ergonomia', 'doble'], 80),
+
+  p('ma-010', 'Cámara de Vigilancia para Mascotas WiFi 360°', 'camara-vigilancia-mascotas',
+    'Cámara WiFi 1080p con rotación 360°, visión nocturna, audio bidireccional y detección de movimiento/sonido. App gratuita para ver a tu mascota en tiempo real, hablarle y recibir alertas. Almacenamiento en tarjeta microSD o nube (opcional). Instalación sencilla con base magnética o tornillos. Ideal para dejar solos a perros y gatos con tranquilidad.',
+    27990, 42990,
+    ['photo-1558002038-1055907df827', 'photo-1558618666-fcd25c85cd64', 'photo-1587300003388-59208cc962cb'],
+    4.7, 3600, 22000, 'mascotas', ['camara', 'wifi', 'vigilancia', '360'], 40),
+
+  // ========== AUTO ==========
+  p('au-001', 'Soporte Magnético de Celular para Auto', 'soporte-magnetico-auto',
+    'Soporte magnético para smartphone con montaje en rejilla de ventilación o tablero (placa adhesiva). Imán de neodimio fuerte, rotación 360° y opción de carga inalámbrica 15W en el modelo Qi. Compatible con fundas finas; incluye placas metálicas ultrafinas. Un solo movimiento para colocar o quitar el teléfono. Conducción más segura y manos libres.',
+    7990, 14990,
+    ['photo-1617531653332-bd46c24f2068', 'photo-1492144534655-ae79c964c9d7', 'photo-1449965408869-eaa3f722e40d'],
+    4.8, 9800, 125000, 'auto', ['soporte', 'celular', 'magnetico', 'coche'], 200),
+
+  p('au-002', 'Cargador de Auto USB-C PD 65W Dual', 'cargador-auto-65w',
+    'Cargador de mechero 12/24 V con 2 puertos USB-C Power Delivery hasta 65 W y 1 USB-A. Carga simultánea de laptop, tablet y smartphone. Chip de identificación inteligente y protecciones contra sobrecorriente. Carcasa de aluminio con LED de estado. Compatible con iPhone, Samsung, MacBook Air y la mayoría de dispositivos PD.',
+    9990, 16990,
+    ['photo-1609091839311-b9bdbb3d0e0f', 'photo-1583863788434-e58a36330cf0', 'photo-1492144534655-ae79c964c9d7'],
+    4.7, 5600, 68000, 'auto', ['cargador', 'auto', 'pd', 'usb-c'], 140),
+
+  p('au-003', 'Aspiradora de Mano para Auto 120W', 'aspiradora-mano-auto',
+    'Aspiradora portátil inalámbrica de 120 W de potencia de succión, batería de hasta 30 minutos y 3 boquillas (rendija, cepillo y extensión). Ideal para asientos, alfombras y maletero. Depósito fácil de vaciar, filtro lavable y carga USB-C. Ligera y con gancho para guardar en el auto. También útil en casa para migas y pelo de mascota.',
+    19990, 32990,
+    ['photo-1558618666-fcd25c85cd64', 'photo-1601362840469-51e4d8d58785', 'photo-1492144534655-ae79c964c9d7'],
+    4.6, 4200, 35000, 'auto', ['aspiradora', 'auto', 'limpieza', 'inalambrica'], 70),
+
+  p('au-004', 'Organizador de Maletero Plegable con Compartimentos', 'organizador-maletero',
+    'Organizador de baúl plegable de tela reforzada con múltiples compartimentos, asas y base antideslizante. Capacidad aprox. 50 L. Mantiene bolsas de compra, herramientas y artículos de emergencia ordenados. Se pliega plano cuando no se usa. Bolsillos laterales de malla. Resistente a salpicaduras ligeras. Una solución simple para el caos del maletero.',
+    12990, 21990,
+    ['photo-1449965408869-eaa3f722e40d', 'photo-1492144534655-ae79c964c9d7', 'photo-1558618666-fcd25c85cd64'],
+    4.7, 3800, 29000, 'auto', ['organizador', 'maletero', 'plegable', 'auto'], 85),
+
+  p('au-005', 'Cubiertas de Asiento Universales 5 Piezas', 'cubiertas-asiento-auto',
+    'Juego completo de fundas de asiento de tela elástica (delanteros + traseros) que protegen del desgaste, manchas y pelo de mascota. Instalación sin herramientas, se adaptan a la mayoría de sedanes y SUV. Costuras reforzadas y abertura para airbags laterales donde corresponde. Lavables. Varios colores. Renuevan el aspecto interior del vehículo.',
+    24990, 39990,
+    ['photo-1503376780353-7e6692767b70', 'photo-1492144534655-ae79c964c9d7', 'photo-1449965408869-eaa3f722e40d'],
+    4.5, 5100, 42000, 'auto', ['cubiertas', 'asiento', 'proteccion', 'universal'], 60),
+
+  p('au-006', 'Cámara de Retroceso Inalámbrica HD', 'camara-retroceso-inalambrica',
+    'Cámara de estacionamiento inalámbrica 1080p con visión nocturna, impermeabilidad IP68 y monitor de 4,3" para el tablero. Instalación simplificada sin pasar cable de video por todo el auto (transmisor inalámbrico). Líneas guía de trayectoria, ángulo amplio. Alimentación desde luces de reversa. Mejora la seguridad al estacionar y maniobrar.',
+    29990, 45990,
+    ['photo-1492144534655-ae79c964c9d7', 'photo-1449965408869-eaa3f722e40d', 'photo-1503376780353-7e6692767b70'],
+    4.6, 2900, 18000, 'auto', ['camara', 'retroceso', 'seguridad', 'inalambrica'], 45),
+
+  p('au-007', 'Kit de Limpieza Interior de Auto 8 Piezas', 'kit-limpieza-auto',
+    'Kit de 8 piezas: limpiador de tablero, limpiavidrios concentrado, limpiador de llantas, microfibras, esponjas y aplicadores. Fórmulas que no dejan grasa excesiva ni dañan plásticos. Rinde para varios lavados completos del interior. Ideal para mantener el auto como nuevo entre visitas al lavado profesional. Instrucciones de uso en español.',
+    14990, 24990,
+    ['photo-1601362840469-51e4d8d58785', 'photo-1492144534655-ae79c964c9d7', 'photo-1558618666-fcd25c85cd64'],
+    4.7, 4700, 38000, 'auto', ['limpieza', 'kit', 'interior', 'microfibra'], 95),
+
+  p('au-008', 'Adaptador de Carga EV Tipo 2 a Tipo 1', 'adaptador-carga-ev',
+    'Adaptador de carga para vehículos eléctricos que convierte conector Tipo 2 (europeo/común en estaciones) a Tipo 1. Cable de 5 m, capacidad 32 A, carcasa robusta e indicadores LED. Permite usar más puntos de carga públicos según el modelo del auto. Verificar compatibilidad con tu vehículo y estación antes de comprar. Uso en corriente alterna.',
+    45990, 69990,
+    ['photo-1593941707882-a5bba14938c7', 'photo-1492144534655-ae79c964c9d7', 'photo-1558618666-fcd25c85cd64'],
+    4.5, 1200, 8500, 'auto', ['ev', 'carga', 'adaptador', 'electrico'], 25),
+
+  p('au-009', 'Soporte de Tablet/GPS para Tablero', 'soporte-tablet-tablero',
+    'Brazo articulado con ventosa reforzada para tablets y GPS de 7 a 13". Rotación 360°, brazo extensible y base de vacío que se fija al tablero o parabrisas. Liberación rápida del dispositivo. Ideal para Waze/Google Maps en tablet o pantallas de navegación portátiles. Incluye placa de seguridad para no dejar la ventosa al sol extremo muchas horas.',
+    11990, 19990,
+    ['photo-1558618666-fcd25c85cd64', 'photo-1492144534655-ae79c964c9d7', 'photo-1617531653332-bd46c24f2068'],
+    4.6, 3400, 27000, 'auto', ['soporte', 'tablet', 'gps', 'tablero'], 75),
+
+  p('au-010', 'Luz LED de Ambiente Interior RGB App', 'luz-ambiente-rgb-auto',
+    'Tira LED RGB para interior del auto controlable por app Bluetooth: 16 millones de colores, modos estáticos, fade y sincronización con música del celular. Instalación bajo asientos o consola con adhesivo. Alimentación por mechero 12 V con interruptor. Transforma el ambiente nocturno del vehículo. Longitud suficiente para cabina estándar.',
+    9990, 17990,
+    ['photo-1558618666-fcd25c85cd64', 'photo-1492144534655-ae79c964c9d7', 'photo-1507473885765-e6ed057f782c'],
+    4.7, 6100, 55000, 'auto', ['led', 'rgb', 'ambiente', 'app'], 120),
+
+  // ========== DEPORTES ==========
+  p('de-001', 'Bandas de Resistencia Set 5 Niveles', 'bandas-resistencia-set5',
+    'Set de 5 bandas elásticas de látex natural (aprox. 5 a 25 kg de resistencia), asas reforzadas, anclaje de puerta y bolsa de transporte. Permiten entrenar fuerza, glúteos, brazos y movilidad en casa o de viaje. Manual de ejercicios básicos incluido. Látex de alta elasticidad y costuras reforzadas en las asas. Alternativa económica al gimnasio.',
+    9990, 16990,
+    ['photo-1598289431512-b97b0917affc', 'photo-1517836357463-d25dfeac3438', 'photo-1571019613454-1cb2f99b2d8b'],
+    4.8, 8900, 98000, 'deportes', ['bandas', 'resistencia', 'fitness', 'casa'], 180),
+
+  p('de-002', 'Esterilla de Yoga Antideslizante 6mm', 'esterilla-yoga-6mm',
+    'Colchoneta de yoga de TPE ecológico, 183×61 cm y 6 mm de grosor, doble cara antideslizante. Amortigua rodillas y muñecas sin ser inestable. Incluye correa de transporte. Libre de PVC tóxico, fácil de limpiar con paño húmedo. Ideal para yoga, pilates y ejercicios en el suelo. Disponible en varios colores.',
+    12990, 21990,
+    ['photo-1601925260368-ae2f83cf8b7f', 'photo-1544367567-0f2fcb009e0b', 'photo-1518611012118-696072aa579a'],
+    4.7, 7200, 67000, 'deportes', ['yoga', 'esterilla', 'pilates', 'tpe'], 110),
+
+  p('de-003', 'Botella de Agua Motivacional 1L con Marcadores', 'botella-motivacional-1l',
+    'Botella de 1 litro de tritán libre de BPA con marcadores de hora para motivar la hidratación, pajita reutilizable, asa y tapa hermética. Diseño motivacional con frases o escala de tiempo. Apta para lavavajillas (sin la pajita en algunos modelos). Ideal para gimnasio, oficina y universidad. No retiene olores. Varios colores.',
+    6990, 11990,
+    ['photo-1602143407151-7111542de6e8', 'photo-1523362628745-0c100150b504', 'photo-1571934811356-5cc061b6821f'],
+    4.6, 9500, 112000, 'deportes', ['botella', 'agua', 'motivacional', '1l'], 220),
+
+  p('de-004', 'Soga de Saltar con Contador Digital', 'soga-saltar-contador',
+    'Cuerda de saltar ajustable con contador digital de saltos, calorías estimadas y temporizador. Rodamientos de acero para giro suave, mango ergonómico antideslizante y cable revestido que no se enreda fácilmente. Ideal para cardio en poco espacio. Pilas del contador incluidas. Longitud ajustable a la altura del usuario.',
+    7990, 13990,
+    ['photo-1518611012118-696072aa579a', 'photo-1517836357463-d25dfeac3438', 'photo-1571019613454-1cb2f99b2d8b'],
+    4.5, 4800, 43000, 'deportes', ['soga', 'cardio', 'contador', 'saltar'], 130),
+
+  p('de-005', 'Mochila Deportiva Impermeable 30L', 'mochila-deportiva-30l',
+    'Mochila de gimnasio 30 L con compartimento separado para zapatos, bolsillo húmedo para ropa sudada, puerto USB externo (power bank no incluido) y correas acolchadas. Tejido resistente al agua. Organización interior con bolsillos para botella y objetos pequeños. Ideal para gym, natación y viaje corto. Aspecto urbano discreto.',
+    18990, 29990,
+    ['photo-1553062407-98eeb64c6a62', 'photo-1581605405669-fbfbc00c0a07', 'photo-1517836357463-d25dfeac3438'],
+    4.7, 3600, 28000, 'deportes', ['mochila', 'gimnasio', 'impermeable', '30l'], 70),
+
+  p('de-006', 'Guantes de Fitness con Muñequera', 'guantes-fitness-muneca',
+    'Guantes de entrenamiento con agarre de silicona, muñequeras ajustables y dorso transpirable. Protegen las manos de callos y mejoran el agarre en pesas y barras. Dedos abiertos para usar el celular. Cierre de velcro. Varias tallas. Ideales para gimnasio, cross-training y pesas en casa.',
+    8990, 14990,
+    ['photo-1517836357463-d25dfeac3438', 'photo-1571019613454-1cb2f99b2d8b', 'photo-1598289431512-b97b0917affc'],
+    4.6, 5100, 49000, 'deportes', ['guantes', 'gimnasio', 'proteccion', 'muneca'], 150),
+
+  p('de-007', 'Bolsa Seca Impermeable 20L para Outdoor', 'bolsa-seca-20l',
+    'Dry bag de PVC 500D con sellado enrollable y capacidad 20 L. Flotante e impermeable para kayak, playa, camping y moto. Costuras termoselladas, asa y anilla para fijar. Protege ropa, electrónica y documentos del agua. Se comprime al enrollar el cierre. Colores visibles para no perderla. Obligatoria en deportes acuáticos.',
+    9990, 16990,
+    ['photo-1553062407-98eeb64c6a62', 'photo-1504280390367-361c6d9f38f4', 'photo-1523362628745-0c100150b504'],
+    4.8, 4200, 36000, 'deportes', ['bolsa', 'impermeable', 'outdoor', 'drybag'], 90),
+
+  p('de-008', 'Rodillera de Compresión Deportiva x2', 'rodillera-compresion',
+    'Par de rodilleras de neopreno con gel de silicona, soporte lateral y compresión gradual. Estabilizan la rótula en running, gym y deportes de impacto. Transpirables y elásticas, se lavan a mano. Tallas según contorno de rodilla. Útiles en prevención y recuperación de molestias leves (no sustituyen órtesis médicas prescritas).',
+    11990, 19990,
+    ['photo-1571019613454-1cb2f99b2d8b', 'photo-1517836357463-d25dfeac3438', 'photo-1598289431512-b97b0917affc'],
+    4.5, 3900, 32000, 'deportes', ['rodillera', 'compresion', 'soporte', 'running'], 100),
+
+  p('de-009', 'Linterna Frontal LED Recargable 1000 Lúmenes', 'linterna-frontal-1000lm',
+    'Linterna frontal de 1000 lúmenes con 5 modos (alto, medio, bajo, strobe, SOS), batería recargable USB-C e impermeabilidad IPX6. Ángulo de haz ajustable, cinta elástica cómoda y peso ligero. Ideal para running nocturno, camping, pesca y trabajos con las manos libres. Autonomía según modo de 2 a 10 horas. Incluye cable de carga.',
+    14990, 24990,
+    ['photo-1504280390367-361c6d9f38f4', 'photo-1518611012118-696072aa579a', 'photo-1478720568477-152d9b164e26'],
+    4.7, 5600, 41000, 'deportes', ['linterna', 'frontal', 'camping', 'running'], 80),
+
+  p('de-010', 'Bicicleta Estática Plegable con Monitor', 'bici-estatica-plegable',
+    'Bicicleta de ejercicio plegable con 8 niveles de resistencia magnética, monitor LCD (tiempo, distancia, calorías, pulso) y asiento ajustable. Se pliega para guardar en espacios pequeños. Pedales con correa, base estable con ruedas de transporte. Ideal para cardio en casa sin ocupar un cuarto entero. Montaje sencillo con herramientas incluidas.',
+    89990, 129990,
+    ['photo-1534438327276-14e5300c3a48', 'photo-1517836357463-d25dfeac3438', 'photo-1571019613454-1cb2f99b2d8b'],
+    4.4, 1800, 9500, 'deportes', ['bici', 'estatica', 'cardio', 'plegable'], 20),
+
+  // ========== COCINA ==========
+  p('co-001', 'Cortador de Verduras Multifunción 12 en 1', 'cortador-verduras-12en1',
+    'Picador de verduras con 12 cuchillas intercambiables de acero inoxidable y contenedor de 1,5 L. Ralla, rebanada, juliana y cubos en segundos. Base antideslizante y empujador de seguridad para proteger los dedos. Ideal para ensaladas, guarniciones y meal prep. Piezas aptas para lavavajillas. Ahorra tiempo frente al cuchillo tradicional.',
+    12990, 22990,
+    ['photo-1556910103-1c0279a1dc47', 'photo-1556911220-bff31c8750ea', 'photo-1556909114-f6e7ad7d3136'],
+    4.7, 11200, 145000, 'cocina', ['cortador', 'verduras', 'multifuncion', 'mandolina'], 160),
+
+  p('co-002', 'Botella Pulverizadora de Aceite de Oliva', 'botella-aceite-spray',
+    'Dispensador de aceite en spray de vidrio con bomba de presión, control de porciones y sin propelentes químicos. Ideal para air fryer, ensaladas y plancha: menos grasa y distribución uniforme. Capacidad aprox. 100–200 ml según modelo. Fácil de rellenar y limpiar. Evita el goteo del aceitero tradicional. Compatible con aceite de oliva y vinagre.',
+    5990, 9990,
+    ['photo-1474979266404-7eaacbcd87c5', 'photo-1556911220-bff31c8750ea', 'photo-1556909114-f6e7ad7d3136'],
+    4.8, 15600, 210000, 'cocina', ['aceite', 'spray', 'airfryer', 'vidrio'], 300),
+
+  p('co-003', 'Bolsas de Silicona Reutilizables Pack x6', 'bolsas-silicona-x6',
+    'Set de 6 bolsas de silicona alimentaria reutilizables, herméticas, aptas para freezer, microondas y lavavajillas. Sustituto del plástico de un solo uso. Varios tamaños para snacks, verduras y leftovers. Cierre tipo zip reforzado, base expandible y marca de medidas. Fáciles de lavar y secar. Colores para organizar por contenido.',
+    9990, 17990,
+    ['photo-1604719312566-8912e9227c6a', 'photo-1556911220-bff31c8750ea', 'photo-1556909114-f6e7ad7d3136'],
+    4.7, 8900, 98000, 'cocina', ['bolsas', 'silicona', 'reutilizable', 'freezer'], 200),
+
+  p('co-004', 'Balanza de Cocina Digital de Precisión', 'balanza-cocina-digital',
+    'Báscula de cocina digital de precisión 5 kg / 1 g con pantalla LCD, función tara y unidades g, oz, ml y lb:oz. Plataforma de vidrio o acero, fácil de limpiar. Ideal para repostería, dietas y café de filtro. Apagado automático y indicador de batería baja. Pilas incluidas. Diseño delgado que cabe en cualquier cajón.',
+    7990, 13990,
+    ['photo-1556911220-bff31c8750ea', 'photo-1556910103-1c0279a1dc47', 'photo-1556909114-f6e7ad7d3136'],
+    4.6, 6700, 72000, 'cocina', ['balanza', 'precision', 'digital', 'reposteria'], 140),
+
+  p('co-005', 'Organizador de Especias Magnético de Pared', 'organizador-especias-magnetico',
+    'Rack magnético de acero inoxidable con 12 frascos de vidrio y etiquetas. Se adhiere a la nevera o a una placa metálica en la pared. Libera espacio en la encimera y mantiene las especias visibles y ordenadas. Frascos con tapa hermética. Ideal para cocinas pequeñas. Incluye plantilla de organización sugerida.',
+    16990, 27990,
+    ['photo-1596797038530-2c107229654b', 'photo-1556911220-bff31c8750ea', 'photo-1556909114-f6e7ad7d3136'],
+    4.7, 4100, 34000, 'cocina', ['especias', 'organizador', 'magnetico', 'pared'], 75),
+
+  p('co-006', 'Tapas Universales de Silicona Stretch x6', 'tapas-silicona-stretch',
+    'Set de 6 tapas elásticas de silicona de distintos diámetros que se adaptan a bowls, latas y recipientes. Herméticas, reutilizables y aptas para microondas y lavavajillas (verificar rango de temperatura del set). Sustituyen film plástico. Colores vivos para identificar contenido. Se estiran y recuperan la forma cientos de veces.',
+    6990, 11990,
+    ['photo-1556911220-e15b29be8c8f', 'photo-1604719312566-8912e9227c6a', 'photo-1556909114-f6e7ad7d3136'],
+    4.8, 7800, 89000, 'cocina', ['tapas', 'silicona', 'conservacion', 'reutilizable'], 180),
+
+  p('co-007', 'Molino de Café Manual de Acero', 'molino-cafe-manual',
+    'Molino de café de manivela con muelas de acero cónicas ajustables, cuerpo de aluminio y depósito para granos y café molido. Molienda uniforme desde espresso hasta prensa francesa. Sin electricidad, ideal para viaje y control total de la molienda. Manivela ergonómica y agarre antideslizante. El favorito de aficionados al café de especialidad.',
+    19990, 32990,
+    ['photo-1495474472287-4d71bcdd2085', 'photo-1514432324607-a09d9b4aefdd', 'photo-1447933601403-0c838bd6471e'],
+    4.6, 3200, 21000, 'cocina', ['cafe', 'molino', 'manual', 'muelas'], 55),
+
+  p('co-008', 'Utensilios de Silicona Set 10 Piezas', 'utensilios-silicona-set10',
+    'Set de 10 utensilios de cocina en silicona alimentaria resistente hasta 230 °C, con mango de madera o nylon según modelo. Incluye espátula, cuchara, cucharón, pinzas, cepillo y más. No rayan sartenes antiadherentes. Se cuelgan o guardan en el recipiente del set. Aptos para lavavajillas (piezas de silicona). Colores modernos.',
+    14990, 24990,
+    ['photo-1556911220-bff31c8750ea', 'photo-1556910103-1c0279a1dc47', 'photo-1556909114-f6e7ad7d3136'],
+    4.7, 5400, 46000, 'cocina', ['utensilios', 'silicona', 'set', 'antiadherente'], 100),
+
+  p('co-009', 'Dispensador de Jabón y Esponja 2 en 1', 'dispensador-jabon-esponja',
+    'Dispensador de jabón líquido para fregadero con soporte integrado para esponja, bomba de presión y depósito de unos 400 ml. Diseño moderno que reduce el desorden junto al grifo. Fácil de rellenar y limpiar. Base estable. Ideal para lavavajilla a mano. Compatible con jabones líquidos estándar (no geles muy densos).',
+    8990, 14990,
+    ['photo-1584622650111-993a426fbf0a', 'photo-1556911220-bff31c8750ea', 'photo-1556909114-f6e7ad7d3136'],
+    4.5, 3900, 33000, 'cocina', ['dispensador', 'jabon', 'esponja', 'fregadero'], 110),
+
+  p('co-010', 'Termo de Café de Acero Inoxidable 500ml', 'termo-cafe-500ml',
+    'Botella térmica de acero inoxidable de doble pared al vacío, 500 ml. Mantiene la bebida caliente hasta 12 h y fría hasta 24 h. Tapa hermética a prueba de fugas, boca ancha para rellenar y beber, y base estable. No retiene olores. Ideal para café, té y agua en auto u oficina. Acabado mate que no muestra huellas.',
+    11990, 19990,
+    ['photo-1571934811356-5cc061b6821f', 'photo-1602143407151-7111542de6e8', 'photo-1495474472287-4d71bcdd2085'],
+    4.8, 6800, 58000, 'cocina', ['termo', 'cafe', 'termico', 'acero'], 130),
+
+  // ========== OFICINA ==========
+  p('of-001', 'Lámpara de Escritorio LED con Carga Inalámbrica', 'lampara-escritorio-carga',
+    'Lámpara de escritorio LED con 5 niveles de brillo, 3 temperaturas de color (fría, neutra, cálida), base con cargador inalámbrico Qi 15 W y puerto USB adicional. Brazo flexible o articulado según modelo. Cuidado de la vista (bajo parpadeo). Ideal para estudiar y trabajar de noche mientras cargas el teléfono. Alimentación por adaptador incluido.',
+    24990, 39990,
+    ['photo-1507473885765-e6ed057f782c', 'photo-1497366216548-37526070297c', 'photo-1527864550417-7fd91fc51a46'],
+    4.7, 4500, 32000, 'oficina', ['lampara', 'led', 'carga', 'escritorio'], 70),
+
+  p('of-002', 'Organizador de Escritorio con Cajones', 'organizador-escritorio',
+    'Organizador de escritorio de bambú o madera con 3 cajones, porta lápices y bandeja superior. Mantiene bolígrafos, clips, post-its y cables ordenados. Diseño minimalista que combina con home office. Fácil de limpiar. Dimensiones pensadas para no ocupar todo el fondo del escritorio. Montaje mínimo o listo para usar.',
+    14990, 24990,
+    ['photo-1497366216548-37526070297c', 'photo-1527864550417-7fd91fc51a46', 'photo-1507473885765-e6ed057f782c'],
+    4.6, 3800, 27000, 'oficina', ['organizador', 'escritorio', 'bambu', 'cajones'], 85),
+
+  p('of-003', 'Soporte de Monitor Elevado con Cajón', 'soporte-monitor-elevado',
+    'Elevador de monitor de bambú o metal con altura ergonómica, cajón de almacenamiento para teclado y espacio para hub USB. Reduce la tensión cervical al poner la pantalla a la altura de los ojos. Capacidad de carga alta, antideslizante. Compatible con monitores y laptops. Mejora la postura en jornadas largas.',
+    19990, 32990,
+    ['photo-1527864550417-7fd91fc51a46', 'photo-1497366216548-37526070297c', 'photo-1507473885765-e6ed057f782c'],
+    4.7, 4100, 29000, 'oficina', ['soporte', 'monitor', 'ergonomia', 'elevador'], 60),
+
+  p('of-004', 'Tira LED Inteligente WiFi 5m RGBIC', 'tira-led-wifi-5m',
+    'Tira LED RGBIC de 5 metros direccionable, control por app WiFi y voz (Alexa / Google Assistant). Sincronización con música, escenas predefinidas y 16 millones de colores. Adhesivo 3M, cortable en marcas y fuente de alimentación incluida. Ideal para tras monitores, estanterías y ambiente gamer. Requiere WiFi 2,4 GHz.',
+    17990, 29990,
+    ['photo-1558618666-fcd25c85cd64', 'photo-1507473885765-e6ed057f782c', 'photo-1558002038-1055907df827'],
+    4.6, 7200, 61000, 'oficina', ['led', 'wifi', 'smart', 'rgbic'], 120),
+
+  p('of-005', 'Timbre Inteligente WiFi con Cámara HD', 'timbre-inteligente-camara',
+    'Timbre de video 1080p con visión nocturna, detección de movimiento, audio bidireccional y alertas al celular. Almacenamiento en la nube o tarjeta local según modelo. Instalación en lugar del timbre cableado o con kit inalámbrico. App gratuita. Ideal para ver quién llama aunque no estés en casa. Resistente a la intemperie IP65.',
+    34990, 54990,
+    ['photo-1558002038-1055907df827', 'photo-1558618666-fcd25c85cd64', 'photo-1497366216548-37526070297c'],
+    4.5, 2800, 19000, 'oficina', ['timbre', 'camara', 'seguridad', 'wifi'], 40),
+
+  p('of-006', 'Soporte de Laptop Ajustable de Aluminio', 'soporte-laptop-aluminio',
+    'Stand ergonómico de aluminio para laptops de 11 a 17", 6 niveles de altura, ventilación inferior y diseño plegable para transporte. Reduce la tensión de cuello y mejora el airflow del equipo. Base antideslizante y tope frontal. Compatible con MacBook y PC. Ligero pero firme. Ideal para home office y coworking.',
+    16990, 27990,
+    ['photo-1527864550417-7fd91fc51a46', 'photo-1497366216548-37526070297c', 'photo-1507473885765-e6ed057f782c'],
+    4.8, 5600, 44000, 'oficina', ['soporte', 'laptop', 'ergonomia', 'aluminio'], 95),
+
+  p('of-007', 'Enchufe Inteligente WiFi Pack x4', 'enchufe-inteligente-x4',
+    'Pack de 4 enchufes inteligentes WiFi con control por app y voz (Alexa/Google), temporizadores, horarios y monitoreo de consumo en algunos modelos. Enchufe estándar chileno/latino según versión. No requieren hub. Ideal para automatizar lámparas, calefactores y apagar equipos en standby. WiFi 2,4 GHz.',
+    19990, 32990,
+    ['photo-1558002038-1055907df827', 'photo-1558618666-fcd25c85cd64', 'photo-1497366216548-37526070297c'],
+    4.7, 4900, 38000, 'oficina', ['enchufe', 'wifi', 'smart', 'pack'], 100),
+
+  p('of-008', 'Proyector de Estrellas Astronauta Galaxy', 'proyector-estrellas-astronauta',
+    'Proyector de galaxia con forma de astronauta, 8 modos de nebulosa y estrellas, temporizador y control remoto. Proyecta en techo y paredes; ideal para dormitorio, relajación y decoración infantil. Ángulo de cabeza ajustable. Alimentación USB. Regalo popular y elemento decorativo con luz ambiental nocturna.',
+    14990, 24990,
+    ['photo-1507400492013-162706c8c05e', 'photo-1419242902214-272b3f66ee7a', 'photo-1507473885765-e6ed057f782c'],
+    4.6, 6300, 52000, 'oficina', ['proyector', 'estrellas', 'galaxy', 'decoracion'], 80),
+
+  p('of-009', 'Mouse Ergonómico Vertical Inalámbrico', 'mouse-ergonomico-vertical',
+    'Mouse vertical inalámbrico 2,4 GHz + Bluetooth, 6 botones programables y DPI ajustable. La posición de “apretón de manos” reduce la tensión en muñeca y el riesgo de molestias por túnel carpiano. Compatible con Windows y macOS. Receptor USB nano y batería recargable o AA según modelo. Ideal para quienes trabajan muchas horas con el PC.',
+    13990, 22990,
+    ['photo-1527864550417-7fd91fc51a46', 'photo-1497366216548-37526070297c', 'photo-1587825140708-dfaf72ae4b04'],
+    4.7, 4100, 31000, 'oficina', ['mouse', 'ergonomico', 'inalambrico', 'vertical'], 90),
+
+  p('of-010', 'Cámara de Seguridad Interior 360° WiFi', 'camara-seguridad-360',
+    'Cámara IP interior 1080p con rotación 360°, seguimiento automático de personas, visión nocturna y detección de movimiento. App con alertas, audio bidireccional y privacidad (puede girar a zona ciega). Tarjeta microSD o nube. Fácil de configurar por WiFi. Ideal para vigilar casa, mascotas u oficina cuando no estás.',
+    22990, 36990,
+    ['photo-1558002038-1055907df827', 'photo-1558618666-fcd25c85cd64', 'photo-1497366216548-37526070297c'],
+    4.6, 3500, 24000, 'oficina', ['camara', 'seguridad', 'wifi', '360'], 55),
 ];
 
 export function getProductsByCategory(categorySlug: string): Product[] {
@@ -163,6 +698,28 @@ export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
 }
 
+/** Comisión por venta de la tienda (margen sobre el precio de venta). */
+export const COMMISSION_RATE = 0.40; // 40%
+
+/** Costo estimado del producto (proveedor) = precio × (1 − comisión). */
+export function getProductCost(price: number): number {
+  return Math.round(price * (1 - COMMISSION_RATE));
+}
+
+/** Comisión / ganancia estimada por unidad = precio × comisión. */
+export function getCommissionAmount(price: number): number {
+  return Math.round(price * COMMISSION_RATE);
+}
+
+/** Porcentaje de comisión formateado (ej. "40%"). */
+export function getCommissionPercentLabel(): string {
+  return `${Math.round(COMMISSION_RATE * 100)}%`;
+}
+
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(price);
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0,
+  }).format(price);
 }
