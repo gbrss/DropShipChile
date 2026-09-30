@@ -100,3 +100,31 @@ La tienda aplica una **comisión del 40%** sobre el precio de venta:
 - **40%** → margen / comisión de la tienda
 
 Se muestra en ficha de producto, carrito y checkout. Constante: `COMMISSION_RATE = 0.40` en `src/data/products.ts`.
+
+## Despliegue en Cloudflare Pages
+
+Este proyecto usa el adaptador **`@astrojs/cloudflare`** (SSR en Pages Functions).
+
+### Por qué salía 404
+
+La config anterior usaba `@astrojs/node` + `output: 'server'`. Eso genera un servidor Node (`dist/server/entry.mjs`) que **Cloudflare Pages no ejecuta**. Pages solo sirve estáticos o Workers/Functions del adaptador de Cloudflare → resultado típico: **404 en todo el sitio**.
+
+### Ajustes en el dashboard de Cloudflare Pages
+
+| Ajuste | Valor |
+|--------|--------|
+| Framework preset | Astro (o None) |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | `/` (o la carpeta del repo) |
+| Node version | 18 o 20 |
+
+### Local
+
+```bash
+npm install
+npm run build
+npx wrangler pages dev ./dist
+```
+
+WebPay (`/api/webpay/*`) requiere SSR; con el adaptador de Cloudflare esas rutas corren como Functions.
